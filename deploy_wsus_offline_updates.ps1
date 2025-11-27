@@ -56,7 +56,7 @@ param (
 	[string] $PDQ_JOB_FILE = "\\thebrain\Downloads\seeders\btsync\pdq_pack_microsoft_offline_updates\job files\Microsoft Offline Updates.xml",
 
 	# Path to 7z.exe
-	[string] $SEVENZIP = "C:\Program Files\7-Zip\7z.exe",
+	[string] $SEVENZIP = "${env:ProgramFiles}\7-Zip\7z.exe",
 
 	# Cleanup? (Delete source ISOs and the files unpacked from them). If set to anything but "yes" then cleanup is skipped.
 	[string] $CLEANUP = "yes"
@@ -64,8 +64,8 @@ param (
 
 # List of products to act against (array). Don't edit this unless you have a pressing need to
 # Basically each of these folders will be renamed according to the new name in the PRODUCTS_NEW_NAMES array
-$PRODUCTS_OLD_NAMES = "wsusoffline-ofc-enu","wsusoffline-w61-x64","wsusoffline-w63-x64","wsusoffline-w100-x64"
-$PRODUCTS_NEW_NAMES = "office_2k7-2k16","windows_7_and_server_2008-R2","windows_8.1_and_server_2012-R2","windows_10_and_server_2016"
+$PRODUCTS_OLD_NAMES = "wsusoffline-ofc-enu", "wsusoffline-w61-x64", "wsusoffline-w63-x64", "wsusoffline-w100-x64"
+$PRODUCTS_NEW_NAMES = "office_2k7-2k16", "windows_7_and_server_2008-R2", "windows_8.1_and_server_2012-R2", "windows_10_and_server_2016"
 
 
 
@@ -132,9 +132,9 @@ write-host "                    Version: $SCRIPT_VERSION ($SCRIPT_UPDATED)" -f d
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Last pulldown detected on $PREVIOUS_UPDATE" -f green
 
 # logging
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " WSUS Offline Package Deployer" >> $LOGPATH\$LOGFILE
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Version: $SCRIPT_VERSION ($SCRIPT_UPDATED)" >> $LOGPATH\$LOGFILE
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Last pulldown detected on $PREVIOUS_UPDATE" >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " WSUS Offline Package Deployer" >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Version: $SCRIPT_VERSION ($SCRIPT_UPDATED)" >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Last pulldown detected on $PREVIOUS_UPDATE" >> $LOGPATH\$LOGFILE
 
 
 ##########
@@ -142,7 +142,7 @@ write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Last pu
 ##########
 # Declare and log what we're doing. This is overly complex but basically just so we can have fancy colors
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Starting deployment. Invoking update script..." -f green
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Starting deployment. Invoking update script..." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Starting deployment. Invoking update script..." >> $LOGPATH\$LOGFILE
 
 # Run the WSUS update script
 cd $WSUS_DIRECTORY\cmd\custom\
@@ -150,7 +150,7 @@ cd $WSUS_DIRECTORY\cmd\custom\
 
 # Done
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Done." -f darkgreen
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Done." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Done." >> $LOGPATH\$LOGFILE
 
 
 ##########
@@ -158,27 +158,27 @@ write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Done." 
 ##########
 cd $WSUS_DIRECTORY\iso
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Unpacking ISOs..." -f green
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Unpacking ISOs..." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Unpacking ISOs..." >> $LOGPATH\$LOGFILE
 
 # Unpack the ISOs
 & $SEVENZIP x $WSUS_DIRECTORY\iso\*.iso -o* -y
 
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Done." -f darkgreen
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Done." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Done." >> $LOGPATH\$LOGFILE
 
 # Create directory structure for upload
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Staging directory structure for upload..." -f green
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Staging directory structure for upload..." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Staging directory structure for upload..." >> $LOGPATH\$LOGFILE
 
 # Pre-stage the directories since "move-item" is stupid and has no option to create them on the fly
 foreach ($i in $PRODUCTS_NEW_NAMES) {
 	mkdir .\$i\ -force | out-null
 	write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Staged $i." -f darkgray
-	"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Staged $i." >> $LOGPATH\$LOGFILE
+	"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Staged $i." >> $LOGPATH\$LOGFILE
 }
 
 # Move everything into the new directories
-for ($i=0; $i -lt $PRODUCTS_OLD_NAMES.Count; $i++)  {
+for ($i = 0; $i -lt $PRODUCTS_OLD_NAMES.Count; $i++) {
 	mv .\$($PRODUCTS_OLD_NAMES[$i])\* .\$($PRODUCTS_NEW_NAMES[$i])
 }
 
@@ -189,37 +189,37 @@ foreach ($i in $PRODUCTS_OLD_NAMES) {
 
 # Done
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Done." -f darkgreen
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Done." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Done." >> $LOGPATH\$LOGFILE
 
 # Delete the old directories (server-side)
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Clearing upload target area..." -f green
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Clearing upload target area..." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Clearing upload target area..." >> $LOGPATH\$LOGFILE
 foreach ($i in $PRODUCTS_NEW_NAMES) {
 	remove-item $REPO_UPDATES\$i -force -recurse | out-null
 }
 	
 # Done
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Done." -f darkgreen
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Done." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Done." >> $LOGPATH\$LOGFILE
 
 
 ##########
 # Step 3 # -- Upload the updates to their respective directories on the server
 ##########
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Uploading files to repository at $REPO_ROOT..." -f green
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Uploading files to repository at $REPO_ROOT..." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Uploading files to repository at $REPO_ROOT..." >> $LOGPATH\$LOGFILE
 
 # This loop iterates through the list of directory names and uploads them using Robocopy
 foreach ($i in $PRODUCTS_NEW_NAMES) {
 	write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Uploading $i..." -f green
-	"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Uploading $i..." >> $LOGPATH\$LOGFILE
+	"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Uploading $i..." >> $LOGPATH\$LOGFILE
 	robocopy .\$i $REPO_UPDATES\$i /R:3 /W:5 /mir /NP /NJH /NJS >> $LOGPATH\$LOGFILE
 	write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Done." -f darkgreen
 }
 
 # Done with all uploads
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " All uploads done." -f darkgreen
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " All uploads done." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " All uploads done." >> $LOGPATH\$LOGFILE
 
 
 ###########
@@ -227,13 +227,14 @@ write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " All upl
 ###########
 IF ($CLEANUP -eq "yes") { 
 	write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " `$CLEANUP variable set to yes. Performing cleanup." -f green
-	"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " `$CLEANUP variable set to yes. Performing cleanup." >> $LOGPATH\$LOGFILE
+	"$CUR_DATE " + $(get-date -f hh:mm:ss) + " `$CLEANUP variable set to yes. Performing cleanup." >> $LOGPATH\$LOGFILE
 	del * -force -recurse
 	write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Done. Deleted everything in $WSUS_DIRECTORY\iso" -f darkgreen
-	"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Done. Deleted everything in $WSUS_DIRECTORY\iso" >> $LOGPATH\$LOGFILE
-} ELSE {
+	"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Done. Deleted everything in $WSUS_DIRECTORY\iso" >> $LOGPATH\$LOGFILE
+}
+ELSE {
 	write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " `$CLEANUP variable not set to yes. Skipping cleanup." -f darkgreen
-	"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " `$CLEANUP variable not set to yes. Skipping cleanup." >> $LOGPATH\$LOGFILE
+	"$CUR_DATE " + $(get-date -f hh:mm:ss) + " `$CLEANUP variable not set to yes. Skipping cleanup." >> $LOGPATH\$LOGFILE
 }
 
 
@@ -241,20 +242,20 @@ IF ($CLEANUP -eq "yes") {
 # Step 4 # -- Update PDQ xml job file
 ##########
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Updating PDQ job file to current date..." -f green
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Updating PDQ job file to current date..." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Updating PDQ job file to current date..." >> $LOGPATH\$LOGFILE
 
 # Do a find-replace on the date string in the PDQ job file
-(gc "$PDQ_JOB_FILE") | Foreach-Object {$_ -replace ($PREVIOUS_UPDATE), "$CUR_DATE"} | sc $PDQ_JOB_FILE -force
+(gc "$PDQ_JOB_FILE") | Foreach-Object { $_ -replace ($PREVIOUS_UPDATE), "$CUR_DATE" } | sc $PDQ_JOB_FILE -force
 
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Done." -f darkgreen
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Done." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Done." >> $LOGPATH\$LOGFILE
 
 
 ##########
 # Step 5 # -- Recalculate hashes
 ##########
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Recalculating hashes, please wait..." -f green
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Recalculating hashes, please wait..." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Recalculating hashes, please wait..." >> $LOGPATH\$LOGFILE
 cd $REPO_ROOT
 cd ..
 cd "integrity verification"
@@ -265,7 +266,7 @@ hashdeep -c md5 -r -l * > $env:temp\checksums.txt
 mv $env:temp\checksums.txt "integrity verification\checksums.txt"
 # Done
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host " Done." -f darkgreen
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " Done." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " Done." >> $LOGPATH\$LOGFILE
 
 
 
@@ -279,7 +280,7 @@ write-host "                    PDQ job file:       $PDQ_JOB_FILE" -f darkgray
 write-host "                    Log file:           $LOGPATH\$LOGFILE" -f darkgray
 write-host "                    Cleanup performed?: $CLEANUP" -f darkgray
 
-"$CUR_DATE "+ $(get-date -f hh:mm:ss) + " DONE. Make sure to re-import the updated PDQ job file." >> $LOGPATH\$LOGFILE
+"$CUR_DATE " + $(get-date -f hh:mm:ss) + " DONE. Make sure to re-import the updated PDQ job file." >> $LOGPATH\$LOGFILE
 echo "                    Working directory:   $WSUS_DIRECTORY" >> $LOGPATH\$LOGFILE
 echo "                    Target repo:         $REPO_ROOT" >> $LOGPATH\$LOGFILE
 echo "                    PDQ job file:        $PDQ_JOB_FILE" >> $LOGPATH\$LOGFILE

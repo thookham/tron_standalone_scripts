@@ -84,7 +84,7 @@ param (
 ###################
 $SCRIPT_VERSION = "0.1.0"
 $SCRIPT_UPDATED = "2015-10-29"
-$CUR_DATE=get-date -f "yyyy-MM-dd"
+$CUR_DATE = get-date -f "yyyy-MM-dd"
 
 # Preload variables for use later
 $JOB_TYPE = $args[0]
@@ -94,7 +94,8 @@ $RESTORE_TYPE = "NUL"
 $SCRIPT_NAME = "backup_differential.ps1"
 
 # Show help if requested
-if ( $args[0] -eq "-h" -or $args[0] -eq "/h" -or $args[0] -eq "--h" -or $args[0] -eq "--help" ) { $JOB_TYPE = "help"
+if ( $args[0] -eq "-h" -or $args[0] -eq "/h" -or $args[0] -eq "--h" -or $args[0] -eq "--help" ) {
+ $JOB_TYPE = "help"
 	""
 	write-output "  $SCRIPT_NAME v$SCRIPT_VERSION"
 	""
@@ -175,317 +176,257 @@ if ( $JOB_TYPE -eq "config_dump" ) {
 # wrap entire script in main function so we can put the logging function at the bottom of the script
 function main {
 
-# Parse CLI args
-foreach ( $thing in $args ) {
-	if ( $thing -eq "-f" ) { $JOB_TYPE = "full" }
-	if ( $thing -eq "-d" ) { $JOB_TYPE = "differential" }
-	if ( $thing -eq "-r" ) { $JOB_TYPE = "restore" }
-	if ( $thing -eq "-a" ) { $JOB_TYPE = "archive_backup_set" }
-	if ( $thing -eq "-p" ) { $JOB_TYPE = "purge_archives" }
-	if ( $thing -eq "-c" ) { $JOB_TYPE = "config_dump" }
-}
-
-# Welcome banner
-logliteral ""
-logliteral "---------------------------------------------------------------------------------------------------"
-logliteral "  Differential Backup Script v$SCRIPT_VERSION - initialized (get-date -f "yyyy-mm-dd hh:mm:ss") at by $env:userdomain\$env:username" green
-logliteral ""
-logliteral "  Script location:  $pwd\$SCRIPT_NAME"
-logliteral ""
-logliteral " Job Options"
-logliteral "  Job type:        Full backup"
-logliteral "  Source:          $source"
-logliteral "  Destination:     $destination"
-logliteral "  Staging area:    $staging"
-logliteral "  Exclusions file: $exclusions_file"
-logliteral "  Backup prefix:   $backup_prefix"
-logliteral "  Log location:    $logpath\$logfile"
-logliteral "---------------------------------------------------------------------------------------------------"
-logliteral ""
-
-
-# // FULL BACKUP: begin
-if ( $JOB_TYPE -eq "full" ) { 
-	logliteral ""
-	log "   Building full archive in staging area $staging..."
-	logliteral ""
-	log "------- [ Beginning of 7zip output ] -------" blue
-		if ( $exclusions_file -ne "" ) { & $sevenzip a "$staging\$backup_prefix_full.7z" "$source" -xr@$exclusions_file  }
-		if ( $exclusions_file -eq "" ) { & $sevenzip a "$staging\$backup_prefix_full.7z" "$source"  }
-	logliteral ""
-	log "------- [ End of 7zip output ] -------" blue
-	logliteral ""
-
-	# Report on the build
-	if ( $? -eq "True" ) {
-		log "   Archive built successfully."
-	} else {
-		$JOB_ERROR = "1"
-		log " ! Archive built with errors." yellow
+	# Parse CLI args
+	foreach ( $thing in $args ) {
+		if ( $thing -eq "-f" ) { $JOB_TYPE = "full" }
+		if ( $thing -eq "-d" ) { $JOB_TYPE = "differential" }
+		if ( $thing -eq "-r" ) { $JOB_TYPE = "restore" }
+		if ( $thing -eq "-a" ) { $JOB_TYPE = "archive_backup_set" }
+		if ( $thing -eq "-p" ) { $JOB_TYPE = "purge_archives" }
+		if ( $thing -eq "-c" ) { $JOB_TYPE = "config_dump" }
 	}
 
-	# Upload to destination
+	# Welcome banner
 	logliteral ""
-	log "   Uploading $backup_prefix_full.7z to $destination..."
+	logliteral "---------------------------------------------------------------------------------------------------"
+	logliteral "  Differential Backup Script v$SCRIPT_VERSION - initialized (get-date -f "yyyy-mm-dd hh:mm:ss") at by $env:userdomain\$env:username" green
 	logliteral ""
-	xcopy "$staging\$backup_prefix_full.7z" "$destination\" /Q /J /Y /Z 
+	logliteral "  Script location:  $pwd\$SCRIPT_NAME"
+	logliteral ""
+	logliteral " Job Options"
+	logliteral "  Job type:        Full backup"
+	logliteral "  Source:          $source"
+	logliteral "  Destination:     $destination"
+	logliteral "  Staging area:    $staging"
+	logliteral "  Exclusions file: $exclusions_file"
+	logliteral "  Backup prefix:   $backup_prefix"
+	logliteral "  Log location:    $logpath\$logfile"
+	logliteral "---------------------------------------------------------------------------------------------------"
 	logliteral ""
 
-	# Report on the upload
-	if ( $? -eq "True" ) {
-		log "   Uploaded full backup to $destination successfully."
-	} else {
-		$JOB_ERROR = "1"
-		log " ! Upload of full backup to $destination failed." yellow
-	}
 
-} # // FULL BACKUP: end
+	# // FULL BACKUP: begin
+	if ( $JOB_TYPE -eq "full" ) { 
+		logliteral ""
+		log "   Building full archive in staging area $staging..."
+		logliteral ""
+		log "------- [ Beginning of 7zip output ] -------" blue
+		if ( $exclusions_file -ne "" ) { & $sevenzip a "$staging\$backup_prefix_full.7z" "$source" -xr@$exclusions_file }
+		if ( $exclusions_file -eq "" ) { & $sevenzip a "$staging\$backup_prefix_full.7z" "$source" }
+		logliteral ""
+		log "------- [ End of 7zip output ] -------" blue
+		logliteral ""
+
+		# Report on the build
+		if ( $? -eq "True" ) {
+			log "   Archive built successfully."
+		}
+		else {
+			$JOB_ERROR = "1"
+			log " ! Archive built with errors." yellow
+		}
+
+		# Upload to destination
+		logliteral ""
+		log "   Uploading $backup_prefix_full.7z to $destination..."
+		logliteral ""
+		xcopy "$staging\$backup_prefix_full.7z" "$destination\" /Q /J /Y /Z 
+		logliteral ""
+
+		# Report on the upload
+		if ( $? -eq "True" ) {
+			log "   Uploaded full backup to $destination successfully."
+		}
+		else {
+			$JOB_ERROR = "1"
+			log " ! Upload of full backup to $destination failed." yellow
+		}
+
+	} # // FULL BACKUP: end
 
 
 
-# // DIFFERENTIAL BACKUP: begin
-if ( $JOB_TYPE -eq "full" ) { 
+	# // DIFFERENTIAL BACKUP: begin
+	if ( $JOB_TYPE -eq "full" ) { 
 
-	# Check for full backup existence
-	if (!"$staging\$backup_prefix_full.7z") {
-		$JOB_ERROR = "1"
-		log " ! ERROR: Couldn't find full backup file ($backup_prefix_full.7z). You must create a full backup before a differential can be created." yellow
-		break
-	} else {
-		# Backup existed, so go ahead
-		log "   Performing differential backup of $source..." green
-	}
+		# Check for full backup existence
+		if (!"$staging\$backup_prefix_full.7z") {
+			$JOB_ERROR = "1"
+			log " ! ERROR: Couldn't find full backup file ($backup_prefix_full.7z). You must create a full backup before a differential can be created." yellow
+			break
+		}
+		else {
+			# Backup existed, so go ahead
+			log "   Performing differential backup of $source..." green
+		}
 
 
-	# Build archive
-	log "   Building archive in staging area $staging..."
-	logliteral ""
-	log "------- [ Beginning of 7zip output ] -------"
-	# Run if we're using an exclusions file
-	if ( $exclusions_file -ne "" ) { & $sevenzip u "$staging\$backup_prefix_full.7z" "$source" -ms=off -mx=9 -xr@$exclusions_file -t7z -u- -up0q3r2x2y2z0w2!"$staging\$backup_prefix_differential_$CUR_DATE.7z"  }
+		# Build archive
+		log "   Building archive in staging area $staging..."
+		logliteral ""
+		log "------- [ Beginning of 7zip output ] -------"
+		# Run if we're using an exclusions file
+		if ( $exclusions_file -ne "" ) { & $sevenzip u "$staging\$backup_prefix_full.7z" "$source" -ms=off -mx=9 -xr@$exclusions_file -t7z -u- -up0q3r2x2y2z0w2!"$staging\$backup_prefix_differential_$CUR_DATE.7z" }
 	
-	# Run if we're NOT using an exclusions file
-	if ( $exclusions_file -eq "" ) { & $sevenzip u "$staging\$backup_prefix_full.7z" "$source" -ms=off -mx=9 -t7z -u- -up0q3r2x2y2z0w2!"$staging\$backup_prefix_differential_$CUR_DATE.7z"  }
-	write-output "------- [ End of 7zip output ] -------" 
-	logliteral ""
+		# Run if we're NOT using an exclusions file
+		if ( $exclusions_file -eq "" ) { & $sevenzip u "$staging\$backup_prefix_full.7z" "$source" -ms=off -mx=9 -t7z -u- -up0q3r2x2y2z0w2!"$staging\$backup_prefix_differential_$CUR_DATE.7z" }
+		write-output "------- [ End of 7zip output ] -------" 
+		logliteral ""
 
-	# Report on the build
-	if ( $? -eq "True" ) {
-		log "   Archive built successfully."
-	} else {
-		$JOB_ERROR = "1"
-		log " ! Archive built with errors." yellow
-	}
+		# Report on the build
+		if ( $? -eq "True" ) {
+			log "   Archive built successfully."
+		}
+		else {
+			$JOB_ERROR = "1"
+			log " ! Archive built with errors." yellow
+		}
 
-	# Upload to destination
-	log "   Uploading $backup_prefix_differential_$CUR_DATE.7z to $destination..."
-	xcopy "$staging\$backup_prefix_differential_$CUR_DATE.7z" "$destination\" /Q /J /Y /Z 
+		# Upload to destination
+		log "   Uploading $backup_prefix_differential_$CUR_DATE.7z to $destination..."
+		xcopy "$staging\$backup_prefix_differential_$CUR_DATE.7z" "$destination\" /Q /J /Y /Z 
 
-	# Report on the upload
-	if ( $? -eq "True" ) {
-		log "   Uploaded differential file successfully."
-	} else {
-		$JOB_ERROR = "1"
-		log " ! Upload of differential file failed." yellow
-	}
-} # DIFFERENTIAL BACKUP: end
+		# Report on the upload
+		if ( $? -eq "True" ) {
+			log "   Uploaded differential file successfully."
+		}
+		else {
+			$JOB_ERROR = "1"
+			log " ! Upload of differential file failed." yellow
+		}
+	} # DIFFERENTIAL BACKUP: end
 
 
 
-# // RESTORE FROM BACKUP: begin
+	# // RESTORE FROM BACKUP: begin
 	#
 	# ! ----------------------------------------------------  LOTS OF BROKEN STUFF BELOW HERE
 	#
-if ( $JOB_TYPE -eq "restore" ) { 
-	logliteral " Restoring from a backup set"
-	logliteral " These backups are available:"
-	logliteral ""
-	cmd /c dir /b /a:-d "$staging"
-	logliteral ""
-	logliteral " Enter the filename to restore from exactly as it appears above."
-	logliteral " (Note: archived backup sets are not shown)"
-	logliteral ""
+	if ( $JOB_TYPE -eq "restore" ) { 
+		$validSelection = $false
+		do {
+			logliteral " Restoring from a backup set"
+			logliteral " These backups are available:"
+			logliteral ""
+			Get-ChildItem -Path "$staging" -File | Select-Object -ExpandProperty Name
+			logliteral ""
+			logliteral " Enter the filename to restore from exactly as it appears above."
+			logliteral " (Note: archived backup sets are not shown)"
+			logliteral ""
 
 
-	$BACKUP_FILE = ""
-	set /p BACKUP_FILE=Filename: 
-	if ($BACKUP_FILE -eq "exit") {break}
+			$BACKUP_FILE = Read-Host "Filename"
+			if ($BACKUP_FILE -eq "exit") { break }
 
-	logliteral ""
-	# Make sure user didn't fat-finger the file name
-	if (test-path -literalpath "$staging\$BACKUP_FILE") {
-		logliteral "  ! ERROR: That file wasn't found. Check your typing and try again." red
-		goto restore_menu
-	}
+			logliteral ""
+			# Make sure user didn't fat-finger the file name
+			if (-not (Test-Path -LiteralPath "$staging\$BACKUP_FILE")) {
+				logliteral "  ! ERROR: That file wasn't found. Check your typing and try again." red
+				continue
+			}
 
-	$CHOICE = "y"
-	logliteral "  ! Selected file '$BACKUP_FILE'"
-	logliteral ""
-	set /p CHOICE=Is this correct [y]?: 
-		if not %CHOICE%==y echo  Going back to menu... && goto restore_menu
-	""
-	echo  Great. Press any key to get started.
-	pause >NUL
-	echo  ! Starting restoration at %TIME% on $CUR_DATE
-	write-output   This might take a while, be patient...
+			logliteral "  ! Selected file '$BACKUP_FILE'"
+			logliteral ""
+			$CHOICE = Read-Host "Is this correct [y]?"
+			if ($CHOICE -ne "y") {
+				Write-Host " Going back to menu..."
+				continue
+			}
+			$validSelection = $true
+		} while (-not $validSelection)
 
-	# Test if we're doing a full or differential restore.
-	if ($BACKUP_FILE -eq "$backup_prefix_full.7z") {$RESTORE_TYPE = "full"}
-	if (!($BACKUP_FILE -eq "$backup_prefix_full.7z")) {$RESTORE_TYPE = "differential"}
+		if ($BACKUP_FILE -eq "exit") { return }
 
-	# Detect our backup type and inform the user
-	if ($RESTORE_TYPE -eq "differential") {
-		log " Restoring from differential backup. Will unpack full backup then differential."
-	}
-	if ($RESTORE_TYPE -eq "full") {
-		log "   Restoring from full backup."
-		log "   Unpacking full backup..."
-	}
+		""
+		Write-Host " Great. Press any key to get started."
+		$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+		Write-Host " ! Starting restoration at $(Get-Date -Format 'HH:mm:ss') on $CUR_DATE"
+		write-output   " This might take a while, be patient..."
+
+		# Test if we're doing a full or differential restore.
+		if ($BACKUP_FILE -eq "$backup_prefix_full.7z") { $RESTORE_TYPE = "full" }
+		if (!($BACKUP_FILE -eq "$backup_prefix_full.7z")) { $RESTORE_TYPE = "differential" }
+
+		# Detect our backup type and inform the user
+		if ($RESTORE_TYPE -eq "differential") {
+			log " Restoring from differential backup. Will unpack full backup then differential."
+		}
+		if ($RESTORE_TYPE -eq "full") {
+			log "   Restoring from full backup."
+			log "   Unpacking full backup..."
+		}
 
 	
-	# Unpack full backup
-	logliteral ""
-	logliteral " ------- [ Beginning of 7zip output ] ------- " blue
-		& $sevenzip x "$staging\$backup_prefix_full.7z" -y -o"$staging\$backup_prefix_restore\" >> $LOGPATH\$LOGFILE
-	logliteral " ------- [    End of 7zip output    ] ------- " blue
-
-	# Report on the unpack
-	if ($? -eq "True") {
-		log "   Full backup unpacked successfully."
-	} else { 
-		$JOB_ERROR = "1"
-		log " ! Full backup unpacked with errors." yellow
-	}
-
-	# Unpack differential file if requested
-	if ($RESTORE_TYPE - eq "differential") {
-		logliteral ""
-		log "   Unpacking differential file $BACKUP_FILE..."
+		# Unpack full backup
 		logliteral ""
 		logliteral " ------- [ Beginning of 7zip output ] ------- " blue
-			& $sevenzip x "$staging\$BACKUP_FILE" -aoa -y -o"$staging\$backup_prefix_restore\" >> $LOGPATH\$LOGFILE
+		& $sevenzip x "$staging\$backup_prefix_full.7z" -y -o"$staging\$backup_prefix_restore\" >> $LOGPATH\$LOGFILE
 		logliteral " ------- [    End of 7zip output    ] ------- " blue
-		logliteral ""
 
 		# Report on the unpack
-		if ($? -eq "True") {			log "   Differential backup unpacked successfully."
-			} else {
-			$JOB_ERROR = "1"
-			log " ! Differential backup unpacked with errors." yellow
+		if ($? -eq "True") {
+			log "   Full backup unpacked successfully."
 		}
-	}
-} # // RESTORE FROM BACKUP: end
+		else { 
+			$JOB_ERROR = "1"
+			log " ! Full backup unpacked with errors." yellow
+		}
+
+		# Unpack differential file if requested
+		if ($RESTORE_TYPE -eq "differential") {
+			logliteral ""
+			log "   Unpacking differential file $BACKUP_FILE..."
+			logliteral ""
+			logliteral " ------- [ Beginning of 7zip output ] ------- " blue
+			& $sevenzip x "$staging\$BACKUP_FILE" -aoa -y -o"$staging\$backup_prefix_restore\" >> $LOGPATH\$LOGFILE
+			logliteral " ------- [    End of 7zip output    ] ------- " blue
+			logliteral ""
+
+			# Report on the unpack
+			if ($? -eq "True") {
+				log "   Differential backup unpacked successfully."
+			}
+			else {
+				$JOB_ERROR = "1"
+				log " ! Differential backup unpacked with errors." yellow
+			}
+		}
+	} # // RESTORE FROM BACKUP: end
 
 
-# // ARCHIVE BACKUPS: begin
-if ( $JOB_TYPE -eq "archive" ) { 
-	log "   Archiving current backup set to $destination\$CUR_DATE_$backup_prefix_set."
+	# // ARCHIVE BACKUPS: begin
+	if ( $JOB_TYPE -eq "archive" ) { 
+		log "   Archiving current backup set to $destination\$CUR_DATE_$backup_prefix_set."
 
-	# Final destination: Make directory, move files
-	pushd "$destination"
-	mkdir $CUR_DATE_$backup_prefix_set 
-	move /Y *.* $CUR_DATE_$backup_prefix_set 
-	popd
-	log "   Deleting all copies in the staging area..."
-	# Staging area: Delete old files
-	del /Q /F "$staging\*.7z"
-	logliteral ""
+		# Final destination: Make directory, move files
+		pushd "$destination"
+		mkdir $CUR_DATE_$backup_prefix_set 
+		move /Y *.* $CUR_DATE_$backup_prefix_set 
+		popd
+		log "   Deleting all copies in the staging area..."
+		# Staging area: Delete old files
+		del /Q /F "$staging\*.7z"
+		logliteral ""
 
-	# Report
-	logliteral ""
-	log "   Backup set archived. All unarchived files in staging area were deleted."
-	logliteral ""
-} # // ARCHIVE BACKUPS: end
+		# Report
+		logliteral ""
+		log "   Backup set archived. All unarchived files in staging area were deleted."
+		logliteral ""
+	} # // ARCHIVE BACKUPS: end
+	#####################
+	# COMPLETION REPORT #
+	#####################
+	# One of these displays if the operation was a restore operation
+	if ($RESTORE_TYPE -eq "full") { log "   Restored full backup to $staging\$backup_prefix" }
+	if ($RESTORE_TYPE -eq "differential") { log "   Restored full and differential backup to $staging\$backup_prefix" }
 
+	log "$SCRIPT_NAME complete." green
+	if ($JOB_ERROR -eq "1") { log " ! Note: Script exited with errors. Maybe check the log." yellow }
 
-# // PURGE BACKUPS: begin
-if ( $JOB_TYPE -eq "purge" ) {
+	# Clean up our temp exclude file
+	if exist %TEMP%\DEATH_BY_HAMSTERS.txt del /F /Q %TEMP%\DEATH_BY_HAMSTERS.txt
 
-	logliteral " CURRENT BACKUP SETS:"
-	""
-	logliteral " IN STAGING          : ($staging)"
-	logliteral " ---------------------"
-	dir /B /A:D "$staging"
-	""
-	""
-	logliteral " IN LONG-TERM STORAGE: ($destination)"
-	logliteral " ---------------------"
-	dir /B /A:D "$destination"
-	""
-	set DAYS=180
-	logliteral " Delete backup sets older than how many days? (you will be prompted for confirmation)"
-	set /p DAYS=[%DAYS%]?: 
-	if %DAYS%==exit goto end
-	""
-	# Tell user what will happen
-	logliteral " THESE BACKUP SETS WILL BE DELETED:"
-	logliteral " ----------------------------------"
-	# List files that would match
-	# We have to use PushD to get around forfiles.exe not using UNC paths. pushd automatically assigns the next free drive letter
-	logliteral " From staging:"
-	pushd "$staging"
-	FORFILES /D -%DAYS% /C "cmd /c IF @isdir == TRUE echo @path" 2>NUL
-	popd
-	""
-	logliteral " From long-term storage:"
-	pushd "$destination"
-	FORFILES /D -%DAYS% /C "cmd /c IF @isdir == TRUE echo @path" 2>NUL
-	popd
-	""
-	set HMMM=n
-	set /p HMMM=Is this okay [%HMMM%]?: 
-	if /i %HMMM%==n "" && echo Canceled. Returning to menu. && goto cleanup_archives_list2
-	if %DAYS%==exit goto end
-	""
-	set CHOICE=n
-	set /p CHOICE=Are you absolutely sure [%CHOICE%]?: 
-	if not %CHOICE%==y "" && echo Canceled. Returning to menu. && goto cleanup_archives_list2
-
-	log "   Deleting backup sets that are older than %DAYS% days..."
-
-	# This cleans out the staging area.
-	# First FORFILES command tells the logfile what will get deleted. Second command actually deletes.
-	pushd "$staging"
-	FORFILES /D -%DAYS% /C "cmd /c IF @isdir == TRUE echo @path" 
-	FORFILES /S /D -%DAYS% /C "cmd /c IF @isdir == TRUE rmdir /S /Q @path"
-	popd
-
-	# This cleans out the destination / long-term storage area.
-	# First FORFILES command tells the logfile what will get deleted. Second command actually deletes.
-	pushd "$destination"
-	FORFILES /D -%DAYS% /C "cmd /c IF @isdir == TRUE echo @path" 
-	FORFILES /S /D -%DAYS% /C "cmd /c IF @isdir == TRUE rmdir /S /Q @path"
-	popd
-
-	# Report results
-	if ( $? -eq "True" ) {
-		log "   Cleanup completed successfully."
-	} else {
-		$JOB_ERROR = "1"
-		log " ! Cleanup completed with errors." yellow
-	}
-	
-} # // PURGE BACKUPS: done
-
-
-
-
-
-
-#####################
-# COMPLETION REPORT #
-#####################
-# One of these displays if the operation was a restore operation
-if ($RESTORE_TYPE -eq "full"){ log "   Restored full backup to $staging\$backup_prefix" }
-if ($RESTORE_TYPE -eq "differential"){ log "   Restored full and differential backup to $staging\$backup_prefix" }
-
-log "$SCRIPT_NAME complete." green
-if ($JOB_ERROR -eq "1") { log " ! Note: Script exited with errors. Maybe check the log." yellow }
-
-# Clean up our temp exclude file
-if exist %TEMP%\DEATH_BY_HAMSTERS.txt del /F /Q %TEMP%\DEATH_BY_HAMSTERS.txt
-
-# Close the main() function. End of the script
+	# Close the main() function. End of the script
 }
 
 
@@ -494,19 +435,17 @@ if exist %TEMP%\DEATH_BY_HAMSTERS.txt del /F /Q %TEMP%\DEATH_BY_HAMSTERS.txt
 #############
 # FUNCTIONS #
 #############
-function log($message, $color)
-{
-	if ($color -eq $null) {$color = "gray"}
+function log($message, $color) {
+	if ($color -eq $null) { $color = "gray" }
 	#console
 	write-host (get-date -f "yyyy-mm-dd hh:mm:ss") -n -f darkgray; write-host "$message" -f $color
 	#log
-	(get-date -f "yyyy-mm-dd hh:mm:ss") +"$message" | out-file -Filepath $logfile -append
+	(get-date -f "yyyy-mm-dd hh:mm:ss") + "$message" | out-file -Filepath $logfile -append
 }
 
 # Literal log (no date/time prefix)
-function logliteral($message, $color)
-{
-	if ($color -eq $null) {$color = "gray"}
+function logliteral($message, $color) {
+	if ($color -eq $null) { $color = "gray" }
 	#console
 	write-host "$message" -f $color
 	#log
