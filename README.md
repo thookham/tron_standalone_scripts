@@ -59,7 +59,7 @@ A collection of standalone scripts and utilities from the Tron project and other
 | 📜 Batch | [pingup.bat](pingup.bat) | **Purpose**: Simple script to check if a host is online and turn the window green (up) or red (down) based on the result. Also logs the result to a file<br> **Requirements**: Windows XP and up |
 | 📜 Batch | [WhosOn.bat](WhosOn.bat) | **Purpose**: Checks who's logged-on to a remote computer<br> **Requirements**: Run this script with a network admin account |
 | 📜 Batch | [Windows one-liners.bat](Windows one-liners.bat) | No description available. |
-| 🐧 Bash | [Linux one-liners (bash).sh](Linux one-liners (bash).sh) | No description available. |
+| 🐧 Bash | [Linux one-liners (bash).sh](Linux one-liners (bash).sh) | **Purpose**: A collection of useful Linux/Bash one-liners for system administration, monitoring, and networking.<br> **Usage**: Copy and paste specific commands as needed. Do not run this file as a script. |
 | 📄 Text | [active directory one-liners.txt](active directory one-liners.txt) | No description available. |
 | 📜 Batch | [lottery.bat](lottery.bat) | No description available. |
 | 📜 Batch | [MyLittlePony.bat](MyLittlePony.bat) | No description available. |
