@@ -21,10 +21,11 @@ set LOGPATH=%TEMP%
 set LOGFILE=map_printers.log
 
 :: Printers to map
-set PRINT_SERVER=\\blisw6syaaps004
-set PRINTER1=DPTMS Bldg 1011 Basement iCafe RICOH MP C4504
-set PRINTER2=DPTMS Bldg 1011 Basement iCafe 2 RICOH MP C4504
-set PRINTER3=DPTMS Bldg 1011 Rm iCafe 3c RICOH MP C4504
+:: Printers to map
+set PRINT_SERVER=\\YOUR_PRINT_SERVER
+set PRINTER1=Printer_Name_1
+set PRINTER2=Printer_Name_2
+set PRINTER3=Printer_Name_3
 
 
 :::::::::::::::::::::

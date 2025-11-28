@@ -39,17 +39,17 @@
 #  * Network paths are okay        ( good:  "\\server\share name"      )
 param (
 	# Specify the folder you want to back up here.
-	[string]$source = "R:\",
+	[string]$source = "C:\Data",
 
 	# Key (password) for archive encryption. If blank, no encryption is used
 	[string]$encryption_key = ""
 	
 	# Work area where everything is stored while compressing. Should be a fast drive or something that can handle a lot of writes
 	# Recommend not using a network share unless it's Gigabit or faster.
-	[string]$staging = "P:\backup_staging\remote",
+	[string]$staging = "C:\backup_staging",
 
 	# This is the final, long-term destination for your backup after it is compressed.
-	[string]$destination = "\\thebrain\backup",
+	[string]$destination = "\\server\backup_share",
 
 	# If you want to customize the prefix of the backup files, do so here. Don't use any special characters (like underscores)
 	# The script automatically suffixes an underscore to this name. Recommend not changing this unless you really need to.
@@ -60,7 +60,7 @@ param (
 	# files or folders (wildcards in the form of * are allowed and recommended) to exclude
 	# If you specify a file here and the script can't find it, it will abort
 	# If you leave this variable blank the script will ignore it
-	[string]$exclusions_file = "R:\scripts\sysadmin\backup_differential_excludes.txt",
+	[string]$exclusions_file = ".\backup_differential_excludes.txt",
 
 	# Log settings. Max size is how big (in bytes) the log can be before it is archived. 1048576 bytes is one megabyte
 	[string]$logpath = $env:systemdrive + "\Logs",

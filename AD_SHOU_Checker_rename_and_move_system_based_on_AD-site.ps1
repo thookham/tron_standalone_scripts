@@ -5,7 +5,7 @@
  History:       1.0.0   Initial write
  Usage:         1. Run with Task Scheduler whenever you feel necessary, just be aware the affected machines will be rebooted
                    Run like this:  .\scriptName.ps1 -CheckOU "Name of OU to scan"
- Notes:         If moving from Pima to Ventura, since we don't know which specific OU to place the machine in, we default to dumping it in the Ventura-Area-D OU since that's where most moves happen
+ Notes:         This script contains hardcoded site and OU definitions that MUST be customized for your environment.
 #>
 
 
@@ -29,7 +29,8 @@ $ErrorActionPreference = "SilentlyContinue"
 write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host -n " SHOU checker v$SCRIPT_VERSION initialized, scanning OU `""; write-host -n -f blue "$CheckOU"; write-host "`"..."
 
 # Scan the target OU and populate an array with the current hostnames
-$CURRENT_OU_HOSTS = (get-adcomputer -searchbase "OU=$CheckOU,OU=NTI_Workstations,DC=green,DC=nti" -filter 'ObjectClass -eq "Computer"' | select -expand Name)
+# UPDATE THIS SEARCHBASE FOR YOUR ENVIRONMENT
+$CURRENT_OU_HOSTS = (get-adcomputer -searchbase "OU=$CheckOU,OU=Workstations,DC=domain,DC=com" -filter 'ObjectClass -eq "Computer"' | select -expand Name)
 
 # FixOU was specified
 if ($FixOU -eq "yes") {
@@ -81,8 +82,9 @@ foreach ($i in $CURRENT_OU_HOSTS) {
 			else {
 				"$CUR_DATE " + $(get-date -f "hh:mm:ss") + " ERROR: $i is in `"$CheckOU`" OU but in site `"$CURRENT_SITE`". Moving to correct OU." >> $LogPath\$LogFile
 				write-host $CUR_DATE (get-date -f hh:mm:ss) -n -f darkgray; write-host -n -f red " ERROR"; write-host ": $i is in `"$CheckOU`" OU but in site `"$CURRENT_SITE`". Moving to correct OU."
-				if ($CURRENT_SITE -like '*VENTURA*') { Get-ADComputer $i | Move-ADObject -TargetPath "OU=Ventura-Area-D,OU=NTI_Workstations,DC=green,DC=nti" }
-				if ($CURRENT_SITE -like '*PIMA*') { Get-ADComputer $i | Move-ADObject -TargetPath "OU=Pima,OU=NTI_Workstations,DC=green,DC=nti" }
+				# UPDATE THESE TARGET PATHS FOR YOUR ENVIRONMENT
+				if ($CURRENT_SITE -like '*SITE1*') { Get-ADComputer $i | Move-ADObject -TargetPath "OU=Site1-OU,OU=Workstations,DC=domain,DC=com" }
+				if ($CURRENT_SITE -like '*SITE2*') { Get-ADComputer $i | Move-ADObject -TargetPath "OU=Site2-OU,OU=Workstations,DC=domain,DC=com" }
 			}
 		}
 		

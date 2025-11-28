@@ -97,13 +97,6 @@ param (
 	[string]$TorrentSaveLocation = "R:\documents\logs\torrents",                # e.g. "R:\documents\logs\torrents"
 	[string]$TorrentSaveLocationCygwinFormat = "/cygdrive/r/documents/logs/torrents",  # e.g. "/cygdrive/r/unsorted"
 
-	# Server holding the seed directories
-	[string]$SeedServer = "\\thebrain",                                         # e.g. "\\thebrain"
-
-	# Torrent upload directory. e.g. where to copy the .torrent file so it can be loaded by the Bittorrent software
-	# Relative path to $SeedServer
-	[string]$TorrentAutoloaderLocation = "downloads\torrent_files\autoloader",  # e.g. "downloads\torrent_files\autoloader"
-
 	# Seeding subdirectories containing \repository and \job_files directories (relative paths). No leading or trailing slashes
 	# RELEASE seeds
 	[string]$SeedFolderRS = "downloads\seeders\resiliosync\pdq_pack",           # e.g. "downloads\seeders\resiliosync\pdq_pack"
@@ -130,22 +123,21 @@ param (
 	###################
 	# PREP AND CHECKS #
 	###################
-	$SCRIPT_VERSION = "1.0.2"
-	$SCRIPT_UPDATED = "2018-12-13"
+	$SCRIPT_VERSION = "1.0.3"
 	$CUR_DATE = get-date -f "yyyy-MM-dd"
 
 	# The "split" command/method is similar to variable cutting in batch (e.g. %myVar:~3,0%)
 
 	# Extract version number of current version from the seed server changelog and stash it in $OldVersion
-	$OldVersion = gc $SeedServer\$SeedFolderRS\pdq_pack\changelog* -ea SilentlyContinue | Select-String -pattern "PACK_VERSION"
+	$OldVersion = Get-Content $SeedServer\$SeedFolderRS\pdq_pack\changelog* -ea SilentlyContinue | Select-String -pattern "PACK_VERSION"
 	$OldVersion = "$OldVersion".Split("=")[1]
 
 	# Extract release date of current version from the seed server changelog and stash it in $OldDate
-	$OldDate = gc $SeedServer\$SeedFolderRS\pdq_pack\changelog* -ea SilentlyContinue | Select-String -pattern "PACK_DATE"
+	$OldDate = Get-Content $SeedServer\$SeedFolderRS\pdq_pack\changelog* -ea SilentlyContinue | Select-String -pattern "PACK_DATE"
 	$OldDate = "$OldDate".Split("=")[1]
 
 	# Extract version number from master changelog and stash it in $NewVersion, then calculate and store the full .exe name for the binary we'll be building
-	$NewVersion = gc $MasterCopy\pdq_pack\changelog* -ea SilentlyContinue | Select-String -pattern "PACK_VERSION"
+	$NewVersion = Get-Content $MasterCopy\pdq_pack\changelog* -ea SilentlyContinue | Select-String -pattern "PACK_VERSION"
 	$NewVersion = "$NewVersion".Split("=")[1]
 	$NewBinary = "PDQ Pack v$NewVersion ($CUR_DATE).exe"
 
@@ -216,7 +208,7 @@ param (
 	write-host " Don't forget to input GPG pin at the prompt!" -f red
 	""
 	pause
-	clear
+	Clear-Host
 
 
 
@@ -241,10 +233,10 @@ param (
 
 		# JOB: Calculate hashes of every file in the directory structure
 		log "   Calculating individual hashes of all included files, please wait..." green
-		pushd $MasterCopy
-		del $env:temp\checksum* -force -recurse | out-null
+		Push-Location $MasterCopy
+		Remove-Item $env:temp\checksum* -force -recurse | out-null
 		& $HashDeep -s -e -c sha256 -l -r .\ | Out-File $env:temp\checksums.txt -encoding ascii
-		mv $env:temp\checksums.txt $MasterCopy\integrity_verification\checksums.txt -force
+		Move-Item $env:temp\checksums.txt $MasterCopy\integrity_verification\checksums.txt -force
 		log "   Done" darkgreen
 
 
@@ -289,18 +281,18 @@ param (
 	
 	
 		log "   Loading Resilio Sync seed..." green
-		cp $MasterCopy\* $SeedServer\$SeedFolderRS\ -recurse -force
+		Copy-Item $MasterCopy\* $SeedServer\$SeedFolderRS\ -recurse -force
 		log "   Done" darkgreen
 	
 	
 		log "   Loading Torrent seed..." green
 		mkdir "$SeedServer\$SeedFolderTorrent\PDQ Pack v$NewVersion ($CUR_DATE)" -ea silentlycontinue | out-null
-		cp $MasterCopy\pdq_pack\* "$SeedServer\$SeedFolderTorrent\PDQ Pack v$NewVersion ($CUR_DATE)" -recurse -force
+		Copy-Item $MasterCopy\pdq_pack\* "$SeedServer\$SeedFolderTorrent\PDQ Pack v$NewVersion ($CUR_DATE)" -recurse -force
 		log "   Done" darkgreen
 	
 	
 		log "   Uploading .torrent file to $TorrentAutoloaderLocation..." green
-		cp "$TorrentSaveLocation\PDQ Pack v$NewVersion ($CUR_DATE).torrent" $SeedServer\$TorrentAutoloaderLocation
+		Copy-Item "$TorrentSaveLocation\PDQ Pack v$NewVersion ($CUR_DATE).torrent" $SeedServer\$TorrentAutoloaderLocation
 		if ($? -eq "True") {
 			log "   Done" darkgreen
 		}
@@ -325,40 +317,11 @@ param (
 
 		# JOB: Background upload the binary pack to the static pack folder on the local seed server
 		log "   Background uploading $NewBinary to $SeedServer\$StaticPackStorageLocation..." green
-		start-job -name pdq_pack_copy_to_seed_server -scriptblock { cp "$env:temp\$($args[0])" "$($args[1])\$($args[2])" -force } -ArgumentList $NewBinary, $SeedServer, $StaticPackStorageLocation
+		start-job -name pdq_pack_copy_to_seed_server -scriptblock { Copy-Item "$env:temp\$($args[0])" "$($args[1])\$($args[2])" -force } -ArgumentList $NewBinary, $SeedServer, $StaticPackStorageLocation
 		""
 
 
 		# JOB: Fetch sha256sums.txt from the repo for updating
-		log "   Fetching repo copy of sha256sums.txt to update..." green
-		Invoke-WebRequest $Repo_URL/sha256sums.txt -outfile $env:temp\sha256sums.txt
-		log "   Done" darkgreen
-
-
-		# JOB: Calculate SHA256 hash of newly-created binary pack and append it to sha256sums.txt
-		log "   Calculating SHA256 hash for binary pack and appending it to sha256sums.txt..." green
-		pushd $env:temp
-		# First hash the file
-		& $HashDeep -s -e -l -c sha256 "PDQ Pack v$NewVersion ($CUR_DATE).exe" | Out-File .\sha256sums_TEMP.txt -Encoding utf8
-		# Strip out the annoying hashdeep header
-		gc .\sha256sums_TEMP.txt | Where-Object { $_ -notmatch '#' } | where-object { $_ -notmatch '%' } | sc .\sha256sums_TEMP2.txt
-		# Strip out blank lines and trailing spaces (not needed?)
-		#(gc .\sha256sums_TEMP2.txt) | ? {$_.trim() -ne "" } | sc .\sha256sums_TEMP2.txt
-		# Append the result to the sha256sums.txt we pulled from the repo
-		gc .\sha256sums_TEMP2.txt | out-file .\sha256sums.txt -encoding utf8 -append
-		# Sleep for a few seconds to make sure the pack has had time to finish uploading to the local seed server static pack location
-		start-sleep -s 30
-		# Nuke any old version that might be lingering in temp
-		remove-item "$env:temp\UPLOADING" -force -recurse -ea SilentlyContinue | out-null
-		# Rename the file to prepare it for uploading
-		ren "$env:temp\$NewBinary" "$env:temp\UPLOADING"
-		popd
-		log "   Done" darkgreen
-
-
-		# JOB: PGP sign sha256sums.txt
-		log "   PGP signing sha256sums.txt..." green
-		""
 		remove-item $env:temp\sha256sums.txt.asc -force -recurse -ea SilentlyContinue | out-null
 		& $gpg --batch --yes --local-user $gpgUsername --passphrase $gpgPassphrase --armor --verbose --detach-sign $env:temp\sha256sums.txt
 		while (1 -eq 1) {
@@ -407,9 +370,9 @@ param (
 		# Get in TEMP directory and call WinSCP to run the script we just created
 		log "   Uploading $NewBinary to $Repo_FTP_Host..." green
 		""
-		pushd $env:temp
+		Push-Location $env:temp
 		& $WinSCP /script=.\deploy_pdq_pack_ftp_script.txt
-		popd
+		Pop-Location
 		""
 		log "   Done" darkgreen
 
@@ -453,7 +416,7 @@ param (
 	# FUNCTIONS #
 	#############
 	function log($message, $color) {
-		if ($color -eq $null) { $color = "gray" }
+		if ($null -eq $color) { $color = "gray" }
 		#console
 		write-host (get-date -f "yyyy-MM-dd hh:mm:ss") -n -f darkgray; write-host "$message" -f $color
 		#log

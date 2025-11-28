@@ -3,7 +3,7 @@ grep -Ril "text-to-find-here" /
 grep -r "string to be searched" /
 
 # rdesktop to a system with compression (z), bitmap caching (P), in low-bandwidth mode (-x m), with remote sound played through remote speakers
-rdesktop hgate.us.to:1338 -g 1450x1250 -z -r sound:remote -x m -P -p <PASSWORD>
+rdesktop example.com:3389 -g 1450x1250 -z -r sound:remote -x m -P -p <PASSWORD>
 
 # Update all expired apt keys
 for K in $(apt-key list | grep expired | cut -d'/' -f2 | cut -d' ' -f1); do sudo apt-key adv --recv-keys --keyserver keys.gnupg.net $K; done

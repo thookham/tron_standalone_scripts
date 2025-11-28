@@ -19,8 +19,8 @@ set LOGPATH=%SystemDrive%\logs
 set LOGFILE=%COMPUTERNAME%_clean_MKV_data.log
 
 :: Set these variables
-set MKVPROPEDIT=R:\utilities\cli_utils\mkvpropedit.exe
-set TARGETDIR=\\10.0.0.4\Media\TV Shows
+if "%MKVPROPEDIT%"=="" set MKVPROPEDIT=mkvpropedit.exe
+if "%TARGETDIR%"=="" set TARGETDIR=%CD%
 
 
 

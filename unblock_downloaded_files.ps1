@@ -16,7 +16,7 @@ Version:       1.0.0
 #  * Network paths are okay        (okay:  \\server\share name      )
 param (
 	# Logging information (currently unused, the unblock-file command doesn't output any text
-	[string]$logpath = "c:\logs",
+	[string]$logpath = "$env:SystemDrive\Logs",
 	[string]$logfile = "unblock_downloaded_files.log"
 )
 
@@ -37,7 +37,7 @@ param (
 ###################
 $SCRIPT_VERSION = "1.0.0"
 $SCRIPT_UPDATED = "2024-05-28"
-$CUR_DATE=get-date -f "yyyy-MM-dd"
+$CUR_DATE = get-date -f "yyyy-MM-dd"
 
 
 

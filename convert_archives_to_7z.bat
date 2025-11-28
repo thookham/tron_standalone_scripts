@@ -16,7 +16,7 @@
 :::::::::::::::
 :: VARIABLES :: -- Set these to your desired values
 :::::::::::::::
-set SEVENZIP=%ProgramFiles%\7-Zip\7z.exe
+if "%SEVENZIP%"=="" set SEVENZIP=%ProgramFiles%\7-Zip\7z.exe
 set FILETYPES=*.rar *.zip
 set LOGPATH=%SystemDrive%\logs
 set LOGFILE=%COMPUTERNAME%_convert_archives_to_7z.log
@@ -25,13 +25,12 @@ set LOGFILE=%COMPUTERNAME%_convert_archives_to_7z.log
 :::::::::::::::::::::
 :: PREP AND CHECKS ::
 :::::::::::::::::::::
-set SCRIPT_VERSION=1.0.4
-set SCRIPT_UPDATED=2022-12-18
+set SCRIPT_VERSION=1.0.5
 :: Get the date into ISO 8601 standard format (yyyy-mm-dd) so we can use it
 for /f %%a in ('WMIC OS GET LocalDateTime ^| find "."') do set DTS=%%a
 set CUR_DATE=%DTS:~0,4%-%DTS:~4,2%-%DTS:~6,2%
 :: Create the log directory if it doesn't exist
-if not exist %LOGPATH% mkdir %LOGPATH%
+if not exist "%LOGPATH%" mkdir "%LOGPATH%"
 
 
 :::::::::::::

@@ -7,22 +7,22 @@
 #>
 
 
-
 #############
 # VARIABLES # (set these to your values)
 #############
 
 # OU containing desktops to target
-$DesktopOU = "OU=MB,OU=Desktops,OU=DPTMS,OU=IMCOM,OU=Bliss,OU=Installations,DC=nasw,DC=ds,DC=army,DC=mil"
+$DesktopOU = "OU=Desktops,OU=Workstations,DC=domain,DC=com"
 
 # OU containing laptops to target
-$LaptopOU = "OU=MB,OU=Laptops,OU=DPTMS,OU=IMCOM,OU=Bliss,OU=Installations,DC=nasw,DC=ds,DC=army,DC=mil"
+$LaptopOU = "OU=Laptops,OU=Workstations,DC=domain,DC=com"
 
 # Message to send
-#$message = "Please save your work and restart your computer ASAP. Thanks, S-6."
-$MessageToSend = "This is a test of the S-6 notification system, please disregard this message."
+$MessageToSend = "Please save your work and restart your computer ASAP. Thanks, IT Support."
 
-# Location of psexec (if using the psexec method vs. the Powershell Invoke-Command method) $psexec = c:\windows\system32\psexec.exe
+# Location of psexec (if using the psexec method vs. the Powershell Invoke-Command method)
+#$psexec = c:\windows\system32\psexec.exe
+
 
 
 
@@ -42,89 +42,91 @@ $SCRIPT_UPDATED = "2020-02-21"
 # The wrest of the script is wrapped in the "main" function, just so we can put the logging function at the bottom
 function main() {
 
-# Pull in the list of computers we're targeting
-$DesktopList=(get-adcomputer -searchbase "$DesktopOU" -filter * | select -expand Name)
-$LaptopList=(get-adcomputer -searchbase "$LaptopOU" -filter * | select -expand Name)
+    # Pull in the list of computers we're targeting
+    $DesktopList = (get-adcomputer -searchbase "$DesktopOU" -filter * | select -expand Name)
+    $LaptopList = (get-adcomputer -searchbase "$LaptopOU" -filter * | select -expand Name)
 
-# for testing against specific systems
-#$DesktopList = 'BLISW6CLAAWKPT2',
-#'BLISWKMAD1HQ604',
-#'BLISWkmad1hq602'
+    # for testing against specific systems
+    #$DesktopList = 'BLISW6CLAAWKPT2',
+    #'BLISWKMAD1HQ604',
+    #'BLISWkmad1hq602'
 
-#$LaptopList = 'BLISW6CLAAWKPT2',
-#'BLISWKMAD1HQ604',
-#'BLISWkmad1hq602'
-
-
-# Count how many in each OU
-$DesktopCount = $DesktopList.Count
-$LaptopCount = $LaptopList.Count
-$TotalCount = $DesktopCount + $LaptopCount
+    #$LaptopList = 'BLISW6CLAAWKPT2',
+    #'BLISWKMAD1HQ604',
+    #'BLISWkmad1hq602'
 
 
-
-# Notify what we're doing
-log "   Message sending script v$SCRIPT_VERSION ($SCRIPT_UPDATED)" green
-log "   Message to send: '$MessageToSend'" white
-log "   Desktop OU: ($DesktopCount hosts) '$DesktopOU'"
-log "   Laptop OU:  ($LaptopCount hosts) '$LaptopOU'"
+    # Count how many in each OU
+    $DesktopCount = $DesktopList.Count
+    $LaptopCount = $LaptopList.Count
+    $TotalCount = $DesktopCount + $LaptopCount
 
 
-# Prompt to launch
-""
-write-host "   Message will be sent to a total of $TotalCount hosts." -f white
-""
-write-host "   Are you sure?" -f red
-""
-pause
-""
+
+    # Notify what we're doing
+    log "   Message sending script v$SCRIPT_VERSION ($SCRIPT_UPDATED)" green
+    log "   Message to send: '$MessageToSend'" white
+    log "   Desktop OU: ($DesktopCount hosts) '$DesktopOU'"
+    log "   Laptop OU:  ($LaptopCount hosts) '$LaptopOU'"
 
 
-# Loop through and send the message (Desktop OU)
-log "   Sending to hosts in the Desktop OU..." green
+    # Prompt to launch
+    ""
+    write-host "   Message will be sent to a total of $TotalCount hosts." -f white
+    ""
+    write-host "   Are you sure?" -f red
+    ""
+    pause
+    ""
 
-foreach ( $computer in $DesktopList ) {
 
-    # Check to see if the system is online before sending
-    if (test-Connection -count 1 -Cn $computer -quiet) {
+    # Loop through and send the message (Desktop OU)
+    log "   Sending to hosts in the Desktop OU..." green
 
-        # Using Psexec to connect
-        # & $psexec \\$computer -i msg * "$MessageToSend"
+    foreach ( $computer in $DesktopList ) {
+
+        # Check to see if the system is online before sending
+        if (test-Connection -count 1 -Cn $computer -quiet) {
+
+            # Using Psexec to connect
+            # & $psexec \\$computer -i msg * "$MessageToSend"
        
-        # Using Powershell to connect
-        Invoke-Command -ComputerName $computer -ScriptBlock { msg * "$using:MessageToSend" } -ea SilentlyContinue # the "$using:" method only works on PS v3 and up
-        log "   $computer sent."
+            # Using Powershell to connect
+            Invoke-Command -ComputerName $computer -ScriptBlock { msg * "$using:MessageToSend" } -ea SilentlyContinue # the "$using:" method only works on PS v3 and up
+            log "   $computer sent."
 
-    } else {
-        log " ! $computer not online, skipping." yellow
+        }
+        else {
+            log " ! $computer not online, skipping." yellow
+        }
+
     }
-
-}
-log "   Done." darkgreen
+    log "   Done." darkgreen
 
 
 
 
-# Loop through and send the message (Laptop OU)
-log "   Sending to hosts in the Laptop OU..." green
+    # Loop through and send the message (Laptop OU)
+    log "   Sending to hosts in the Laptop OU..." green
 
-foreach ( $computer in $LaptopList ) {
-    # Check to see if the system is online before sending
-    if (test-Connection -count 1 -Cn $computer -quiet) {
+    foreach ( $computer in $LaptopList ) {
+        # Check to see if the system is online before sending
+        if (test-Connection -count 1 -Cn $computer -quiet) {
 
-        # Using Psexec to connect
-        # & $psexec \\$computer -i msg * "$MessageToSend"
+            # Using Psexec to connect
+            # & $psexec \\$computer -i msg * "$MessageToSend"
        
-        # Using Powershell to connect
-        Invoke-Command -ComputerName $computer -ScriptBlock { msg * "$using:MessageToSend" } -ea SilentlyContinue # the "$using:" method only works on PS v3 and up
-        log "   $computer sent."
+            # Using Powershell to connect
+            Invoke-Command -ComputerName $computer -ScriptBlock { msg * "$using:MessageToSend" } -ea SilentlyContinue # the "$using:" method only works on PS v3 and up
+            log "   $computer sent."
 
-    } else {
-        log " ! $computer not online, skipping." yellow
+        }
+        else {
+            log " ! $computer not online, skipping." yellow
+        }
+
     }
-
-}
-log "   Done." darkgreen
+    log "   Done." darkgreen
 
 } # Close out the main function. End of script
 
@@ -134,11 +136,10 @@ log "   Done." darkgreen
 #############
 # FUNCTIONS #
 #############
-function log($message, $color)
-{
-	if ($color -eq $null) {$color = "gray"}
-	# log to console
-	write-host (get-date -f "yyyy-MM-dd hh:mm:ss") -n -f darkgray; write-host "$message" -f $color
+function log($message, $color) {
+    if ($color -eq $null) { $color = "gray" }
+    # log to console
+    write-host (get-date -f "yyyy-MM-dd hh:mm:ss") -n -f darkgray; write-host "$message" -f $color
 }
 
 

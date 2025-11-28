@@ -18,14 +18,14 @@ Version:       1.0.1
 param (
 	# Logging information
 	#[string]$logpath = "$env:userprofile\root\documents\misc\logs",
-	[string]$logpath = "c:\logs",
+	[string]$logpath = "$env:SystemDrive\Logs",
 	[string]$logfile = "aexp_task_tagger.log",
 
 	# Path to 7z.exe
-	[string]$SevenZip = "C:\Program Files\7-Zip\7z.exe",
+	[string]$SevenZip = "$env:ProgramFiles\7-Zip\7z.exe",
 
 	# Implementation logs directory that we're scanning
-	[string]$implementationLogs = "$env:userprofile\root\documents\implementation_logs"
+	[string]$implementationLogs = ".\implementation_logs"
 	#[string]$implementationLogs = "$env:userprofile\implementation_logs"
 )
 
@@ -37,7 +37,7 @@ param (
 # ----------------------------- Don't edit anything below this line ----------------------------- #
 
 
-if (test-path "$env:userprofile\desktop\PeerReviewErros.log") {ri "$env:userprofile\desktop\PeerReviewErros.log"}
+if (test-path "$env:userprofile\desktop\PeerReviewErros.log") { ri "$env:userprofile\desktop\PeerReviewErros.log" }
 
 
 
@@ -46,7 +46,7 @@ if (test-path "$env:userprofile\desktop\PeerReviewErros.log") {ri "$env:userprof
 ###################
 $SCRIPT_VERSION = "1.0.1"
 $SCRIPT_UPDATED = "2017-03-24"
-$CUR_DATE=get-date -f "yyyy-MM-dd"
+$CUR_DATE = get-date -f "yyyy-MM-dd"
 # Get in our directory. We'll be here for the rest of the script
 pushd $implementationLogs
 # Preload our different arrays for later
@@ -66,25 +66,25 @@ $logsAfter = ls $logsAfter | % { $_.FullName }
 #################
 # List of items to make sure they exist before running the script
 $pathsToCheck = @(
-    # Local machine: 7z.exe
-    "$SevenZip",
-    # Local machine: Implementation logs
-    "$implementationLogs"
+	# Local machine: 7z.exe
+	"$SevenZip",
+	# Local machine: Implementation logs
+	"$implementationLogs"
 )
 
 # Run the check
 foreach ($i in $pathstoCheck) {
-    if ( -not (test-path -LiteralPath $i)) {
-        ""
-        write-host -n " ["; write-host -n "ERROR" -f red; write-host -n "]";
-        write-host " Couldn't find the following required item:"
-        ""
-        write-host "            $i"
-        ""
-        write-host "         Check paths and permissions and make sure it exists"
+	if ( -not (test-path -LiteralPath $i)) {
+		""
+		write-host -n " ["; write-host -n "ERROR" -f red; write-host -n "]";
+		write-host " Couldn't find the following required item:"
+		""
+		write-host "            $i"
+		""
+		write-host "         Check paths and permissions and make sure it exists"
 		$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 		return
-    }
+	}
 }
 
 
@@ -97,104 +97,108 @@ foreach ($i in $pathstoCheck) {
 
 # Script is wrapped in a function so we can stick the log function at the bottom
 function main() {
-log "AEXP NSM log file TASK tagging script v$SCRIPT_VERSION" cyan
-log "Executing as $env:userdomain\$env:username" darkgray
+	log "AEXP NSM log file TASK tagging script v$SCRIPT_VERSION" cyan
+	log "Executing as $env:userdomain\$env:username" darkgray
 
-# Loop through the logs and rename them, using the Change log as the "anchor" since it' contains the TASK number
-foreach ($logfileChange in $logsChange) {
+	# Loop through the logs and rename them, using the Change log as the "anchor" since it' contains the TASK number
+	foreach ($logfileChange in $logsChange) {
 
-	# Extract the task number from the log and into a variable
-	$taskNumber = ""												# blank it out each loop
-	$step1 = gc $logfileChange | sls -pattern TASK\d\d\d\d\d\d\d	# extract whole line
-	$step2 = ("$step1" -split "\*\*\*\*\s")[1]						# strip leading asterisks
-	$taskNumber = $step2 -replace "\s\*\*\*\*",""					# strip trailing asterisks
-	$taskNumber = $taskNumber.trim()								# strip before and after whitespace
+		# Extract the task number from the log and into a variable
+		$taskNumber = ""												# blank it out each loop
+		$step1 = gc $logfileChange | sls -pattern TASK\d\d\d\d\d\d\d	# extract whole line
+		$step2 = ("$step1" -split "\*\*\*\*\s")[1]						# strip leading asterisks
+		$taskNumber = $step2 -replace "\s\*\*\*\*", ""					# strip trailing asterisks
+		$taskNumber = $taskNumber.trim()								# strip before and after whitespace
 
-	# If we were able to get a task number go ahead and perform the rename operations
-	# If we weren't able to extract a TASK number then all the following is skipped and we go on to the next file
-	# (length being greater than 7 is a somewhat arbitrary check but whatever)
-	if ($taskNumber.Length -gt 7) {
+		# If we were able to get a task number go ahead and perform the rename operations
+		# If we weren't able to extract a TASK number then all the following is skipped and we go on to the next file
+		# (length being greater than 7 is a somewhat arbitrary check but whatever)
+		if ($taskNumber.Length -gt 7) {
 
-		# Parse the CHANGE log
-		if ($logfileChange -match "$taskNumber") {
-			log "SKIP $taskNumber change.log (already tagged)"
-		} else {
-			log "TAG  $taskNumber change.log" green
-			# Build our new file name then do the rename
-			$logfileChangeNewName = $logfileChange -replace "TASKxxxxxxx","$taskNumber"
-			Rename-Item $logfileChange $logfileChangeNewName -force
+			# Parse the CHANGE log
+			if ($logfileChange -match "$taskNumber") {
+				log "SKIP $taskNumber change.log (already tagged)"
+			}
+			else {
+				log "TAG  $taskNumber change.log" green
+				# Build our new file name then do the rename
+				$logfileChangeNewName = $logfileChange -replace "TASKxxxxxxx", "$taskNumber"
+				Rename-Item $logfileChange $logfileChangeNewName -force
 
-			# Rename the BEFORE log
-			# Loop through ALL Before logs and compare them to the working Change log to find a match
-			foreach ($logfileBefore in $logsBefore) {
-				# This is really ugly but here's the explanation:
-				# We're basically doing an AND comparison on the date/time stamp (down to the hour) and the IP address/hostname in the "before" log file names
-				# If BOTH match, then we assume we've found a matching log set and rename accordingly
-				# The use of the split function is to strip out the path and leave only the file name
-				# The use of the substring function is to extract the IP address/hostname for comparison
-				if ($logfileBefore.split("\\")[-1].substring(0,14) -eq $logfileChange.split("\\")[-1].substring(0,14) -and $logfileBefore.split("-")[-2] -eq $logfileChange.split("-")[-2]) {
+				# Rename the BEFORE log
+				# Loop through ALL Before logs and compare them to the working Change log to find a match
+				foreach ($logfileBefore in $logsBefore) {
+					# This is really ugly but here's the explanation:
+					# We're basically doing an AND comparison on the date/time stamp (down to the hour) and the IP address/hostname in the "before" log file names
+					# If BOTH match, then we assume we've found a matching log set and rename accordingly
+					# The use of the split function is to strip out the path and leave only the file name
+					# The use of the substring function is to extract the IP address/hostname for comparison
+					if ($logfileBefore.split("\\")[-1].substring(0, 14) -eq $logfileChange.split("\\")[-1].substring(0, 14) -and $logfileBefore.split("-")[-2] -eq $logfileChange.split("-")[-2]) {
 
-					# Rename the Before log
-					if ($logfileBefore -match "$taskNumber") {
-						log "SKIP $taskNumber before.log (already tagged)"
-					} else {
-						log "TAG  $taskNumber before.log" green
+						# Rename the Before log
+						if ($logfileBefore -match "$taskNumber") {
+							log "SKIP $taskNumber before.log (already tagged)"
+						}
+						else {
+							log "TAG  $taskNumber before.log" green
 
-						# Make some variables to use in the log messages
-						$logfileChangeMatch = $logfileChange.split("\\")[-1]
-						$logfileBeforeMatch = $logfileBefore.split("\\")[-1]
+							# Make some variables to use in the log messages
+							$logfileChangeMatch = $logfileChange.split("\\")[-1]
+							$logfileBeforeMatch = $logfileBefore.split("\\")[-1]
 
-						# Log the match
-						logNoDateTimeStamp "$logfileChangeMatch"
-						logNoDateTimeStamp "$logfileBeforeMatch"
+							# Log the match
+							logNoDateTimeStamp "$logfileChangeMatch"
+							logNoDateTimeStamp "$logfileBeforeMatch"
 
-						# Build our new file name then do the rename
-						$logfileBeforeNewName = $logfileBefore -replace "TASKxxxxxxx","$taskNumber"
-						Rename-Item $logfileBefore $logfileBeforeNewName -force
+							# Build our new file name then do the rename
+							$logfileBeforeNewName = $logfileBefore -replace "TASKxxxxxxx", "$taskNumber"
+							Rename-Item $logfileBefore $logfileBeforeNewName -force
+						}
 					}
 				}
-			}
 
 
-			# Rename the AFTER log
-			# Loop through ALL After logs and compare them to the working Change log to find a match
-			foreach ($logfileAfter in $logsAfter) {
-				if ($logfileAfter.split("\\")[-1].substring(0,14) -eq $logfileChange.split("\\")[-1].substring(0,14) -and $logfileAfter.split("-")[-2] -eq $logfileChange.split("-")[-2]) {
+				# Rename the AFTER log
+				# Loop through ALL After logs and compare them to the working Change log to find a match
+				foreach ($logfileAfter in $logsAfter) {
+					if ($logfileAfter.split("\\")[-1].substring(0, 14) -eq $logfileChange.split("\\")[-1].substring(0, 14) -and $logfileAfter.split("-")[-2] -eq $logfileChange.split("-")[-2]) {
 
-					# Rename the After log
-					if ($logfileAfter -match "$taskNumber") {
-						log "SKIP $taskNumber after.log  (already tagged)"
-					} else {
-						log "TAG  $taskNumber after.log" green
+						# Rename the After log
+						if ($logfileAfter -match "$taskNumber") {
+							log "SKIP $taskNumber after.log  (already tagged)"
+						}
+						else {
+							log "TAG  $taskNumber after.log" green
 
-						# Make some variables to use in the log messages
-						$logfileChangeMatch = $logfileChange.split("\\")[-1]
-						$logfileAfterMatch = $logfileAfter.split("\\")[-1]
+							# Make some variables to use in the log messages
+							$logfileChangeMatch = $logfileChange.split("\\")[-1]
+							$logfileAfterMatch = $logfileAfter.split("\\")[-1]
 
-						# Log the match
-						logNoDateTimeStamp "$logfileChangeMatch"
-						logNoDateTimeStamp "$logfileAfterMatch"
+							# Log the match
+							logNoDateTimeStamp "$logfileChangeMatch"
+							logNoDateTimeStamp "$logfileAfterMatch"
 
-						# Build our new file name then do the rename
-						$logfileAfterNewName = $logfileAfter -replace "TASKxxxxxxx","$taskNumber"
-						Rename-Item $logfileAfter $logfileAfterNewName -force
+							# Build our new file name then do the rename
+							$logfileAfterNewName = $logfileAfter -replace "TASKxxxxxxx", "$taskNumber"
+							Rename-Item $logfileAfter $logfileAfterNewName -force
+						}
 					}
 				}
 			}
 		}
-	} else {
-		$x = $logfileChange.split("\\")[-1] #hacky workaround so the log function doesn't blow up
-		log "PASS (no task #) $x" darkyellow
-	}
+		else {
+			$x = $logfileChange.split("\\")[-1] #hacky workaround so the log function doesn't blow up
+			log "PASS (no task #) $x" darkyellow
+		}
 
-} # End rename loop
+	} # End rename loop
 
 
 
-# Finished
-log "COMPLETE" cyan
-popd
-pause
+	# Finished
+	log "COMPLETE" cyan
+	popd
+	pause
 } # End main function
 
 
@@ -204,18 +208,16 @@ pause
 #############
 # FUNCTIONS #
 #############
-function log($message, $color)
-{
-	if ($color -eq $null) {$color = "gray"}
+function log($message, $color) {
+	if ($color -eq $null) { $color = "gray" }
 
 	write-host (get-date -f "yyyy-MM-dd hh:mm:ss") -n -f darkgray; write-host " $message" -f $color
-	(get-date -f "yyyy-MM-dd hh:mm:ss") +" $message" | out-file -Filepath "c:\logs\add_task_number_to_log_names.log" -append
+	(get-date -f "yyyy-MM-dd hh:mm:ss") + " $message" | out-file -Filepath "c:\logs\add_task_number_to_log_names.log" -append
 	#(get-date -f "yyyy-mm-dd hh:mm:ss") +"$message" | out-file -Filepath "$logpath\$logfile" -append
 }
 
-function logNoDateTimeStamp($message, $color)
-{
-	if ($color -eq $null) {$color = "gray"}
+function logNoDateTimeStamp($message, $color) {
+	if ($color -eq $null) { $color = "gray" }
 
 	write-host "                    $message" -f $color
 	"                    $message" | out-file -Filepath "c:\logs\add_task_number_to_log_names.log" -append

@@ -48,8 +48,8 @@ set LOG_MAX_SIZE=2097152
 
 :: Specify the network location where the Microsoft offline update packages are.               ( Default: \\server\share\microsoft_offline_updates )
 :: Specify a local directory on the target machine to store the updates in while they install. ( Default: %TEMP%\microsoft_offline_updates         )
-set REMOTE_REPOSITORY=\\YOUR-SERVER-NAME\repo\microsoft_offline_updates
-set WORKING_DIRECTORY=%TEMP%\microsoft_offline_updates
+if "%REMOTE_REPOSITORY%"=="" set REMOTE_REPOSITORY=\\YOUR-SERVER-NAME\repo\microsoft_offline_updates
+if "%WORKING_DIRECTORY%"=="" set WORKING_DIRECTORY=%TEMP%\microsoft_offline_updates
 
 
 
@@ -63,11 +63,8 @@ set WORKING_DIRECTORY=%TEMP%\microsoft_offline_updates
 :: Prep and checks ::
 :::::::::::::::::::::
 @echo off
-set SCRIPT_VERSION=1.7.1
-set SCRIPT_UPDATED=2015-09-15
-:: Get the date into ISO 8601 standard date format (yyyy-mm-dd) so we can use it
-FOR /f %%a in ('WMIC OS GET LocalDateTime ^| find "."') DO set DTS=%%a
-set CUR_DATE=%DTS:~0,4%-%DTS:~4,2%-%DTS:~6,2%
+set SCRIPT_VERSION=1.7.2
+set CUR_DATE=%date:~10,4%-%date:~4,2%-%date:~7,2%
 
 :: This is useful if we start from a network share; converts CWD to a drive letter
 pushd "%~dp0" 2>NUL
@@ -81,7 +78,7 @@ set WORKING_FOLDER=%WORKING_DIRECTORY%\%PRODUCT%
 :: Error checks. Throw error if it fails
 echo.
 if '%1%'=='' echo  ERROR  You didn't specify a product name. Edit this batch file with a text editor to configure it correctly. && exit /B 1
-if not exist %UPDATE_PACKAGE% echo  ERROR  Couldn't find the update package you specified, check your path. && exit /B 2
+if not exist "%UPDATE_PACKAGE%" echo  ERROR  Couldn't find the update package you specified, check your path. && exit /B 2
 
 
 :::::::::::::::::::::::
@@ -89,13 +86,13 @@ if not exist %UPDATE_PACKAGE% echo  ERROR  Couldn't find the update package you 
 :::::::::::::::::::::::
 :: Make the logfile if it doesn't exist
 if not exist "%LOGPATH%" mkdir "%LOGPATH%"
-if not exist %LOGPATH%\%LOGFILE% echo. > %LOGPATH%\%LOGFILE%
+if not exist "%LOGPATH%\%LOGFILE%" echo. > "%LOGPATH%\%LOGFILE%"
 
 :: Check log size. If it's less than our max, then jump to the cleanup section
-for %%R in (%LOGPATH%\%LOGFILE%) do IF %%~zR LSS %LOG_MAX_SIZE% goto installation
+for %%R in ("%LOGPATH%\%LOGFILE%") do IF %%~zR LSS %LOG_MAX_SIZE% goto installation
 
 :: If the log was too big, go ahead and rotate it.
-pushd %LOGPATH%
+pushd "%LOGPATH%"
 del %LOGFILE%.oldest 2>NUL
 rename %LOGFILE%.older %LOGFILE%.oldest 2>NUL
 rename %LOGFILE%.old %LOGFILE%.older 2>NUL
@@ -108,7 +105,7 @@ popd
 ::::::::::::::::::
 :installation
 :: Preclear the download area
-IF EXIST %WORKING_DIRECTORY% rmdir /S /Q %WORKING_DIRECTORY%
+IF EXIST "%WORKING_DIRECTORY%" rmdir /S /Q "%WORKING_DIRECTORY%"
 
 :: Pull down the update package from the server and store it locally (on the target system)
 robocopy "%UPDATE_PACKAGE%" "%WORKING_FOLDER%" /FFT /MIR /Z /NP /LOG+:"%LOGPATH%\%LOGFILE%"

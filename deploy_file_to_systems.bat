@@ -25,9 +25,34 @@ set LOGPATH=%SystemDrive%\logs
 set LOGFILE=deploy_file_to_systems.log
 
 :: Target information
-set SYSTEMS=systems.txt
-set FILE=Registry.pol
-set FILE2=lgpo.exe
+if "%~1"=="" (
+    set SYSTEMS=systems.txt
+) else (
+    set SYSTEMS=%~1
+)
+
+if "%~2"=="" (
+    set FILE=Registry.pol
+) else (
+    set FILE=%~2
+)
+
+if "%~3"=="" (
+    set FILE2=lgpo.exe
+) else (
+    set FILE2=%~3
+)
+
+:: Display usage if no arguments and default files don't exist
+if not exist "%SYSTEMS%" if not exist "%FILE%" (
+    echo.
+    echo Usage: %~nx0 [systems_file] [file_to_deploy] [secondary_file]
+    echo.
+    echo Default systems file: systems.txt
+    echo Default file:        Registry.pol
+    echo Default secondary:   lgpo.exe
+    echo.
+)
 
 :: PSexec location
 :: set PSEXEC=psexec.exe

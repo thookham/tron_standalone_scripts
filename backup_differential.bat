@@ -21,34 +21,6 @@
 ::                 -a   archive (close out/rotate) the current backup set. This:
 ::                      1. moves all .7z files in the %DESTINATION% into a folder named with the current date
 ::                      2. deletes all .7z files from the staging area
-::                 -p   purge (delete) old backup sets from staging and destination. If you specify a number 
-::                      of days after the command it will run automatically without any confirmation. Be careful with this!
-::                 -c   show job options (show what the variables are set to)
-
-:: Important:     If you want to set this script up in Windows Task Scheduler, be aware that Task Scheduler
-::                can't use mapped network drives (X:\, Z:\, etc) when it is set to "Run even if user isn't logged on."
-::                The task will simply fail to do anything (because Scheduler can't see the drives). To work around this use
-::                UNC paths instead (\\server\backup_folder etc) for your source, destination, and staging areas.
-@echo off
-SETLOCAL
-
-
-:::::::::::::::
-:: VARIABLES :: -- Set these to your desired values
-:::::::::::::::
-:: Rules for variables:
-::  * NO quotes!                       (bad:  "c:\directory\path"       )
-::  * NO trailing slashes on the path! (bad:   c:\directory\            )
-::  * Spaces are okay                  (okay:  c:\my folder\with spaces )
-::  * Network paths are okay           (okay:  \\server\share name      )
-::                                     (       \\172.16.1.5\share name  )
-:: Specify the folder you want to back up here.
-set SOURCE=%userprofile%\root
-
-:: Work area where everything is stored while compressing. Should be a fast drive or something that can handle a lot of writes
-:: Recommend not using a network share unless it's Gigabit or faster.
-set STAGING=%temp%
-
 :: This is the final, long-term destination for your backup after it is compressed.
 set DESTINATION=%SystemDrive%\temp\root_backup
 
@@ -69,7 +41,7 @@ set LOGFILE=%COMPUTERNAME%_%BACKUP_PREFIX%_differential.log
 set LOG_MAX_SIZE=104857600
 
 :: Location of 7-Zip and forfiles.exe
-set SEVENZIP="C:\Program Files\7-Zip\7z.exe"
+if "%SEVENZIP%"=="" set SEVENZIP="%ProgramFiles%\7-Zip\7z.exe"
 set FORFILES=%WINDIR%\system32\forfiles.exe
 
 

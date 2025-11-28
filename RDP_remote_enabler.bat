@@ -26,7 +26,8 @@ cls
 :::::::::::::::
 
 :: Which user to enable RDP for
-set RDP_USER=vocatus
+:: Which user to enable RDP for
+set RDP_USER=Your_Username_Here
 
 :: Connection timeout (in seconds)
 set TIMEOUT=4
