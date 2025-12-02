@@ -19,6 +19,10 @@ A curated collection of battle-tested standalone scripts and utilities for Windo
   - [🧹 Maintenance & Cleanup](#-maintenance--cleanup)
   - [🛠️ Utilities & Tools](#️-utilities--tools)
   - [📊 Monitoring, One-Liners, & Misc](#-monitoring-one-liners--misc)
+- [Additional Resources](#additional-resources)
+  - [📁 Subdirectories](#-subdirectories)
+  - [🔧 Standalone Tools](#-standalone-tools)
+  - [📄 Data Files](#-data-files)
 - [Usage Examples](#usage-examples)
 - [Related Projects](#related-projects)
 - [Contributing](#contributing)
@@ -131,7 +135,7 @@ Monitoring tools, useful command snippets, and miscellaneous utilities.
 | 📜 Batch | [pingup.bat](pingup.bat) | **Purpose**: Simple script to check if a host is online and turn the window green (up) or red (down) based on the result. Also logs the result to a file<br> **Requirements**: Windows XP and up |
 | 📜 Batch | [WhosOn.bat](WhosOn.bat) | **Purpose**: Checks who's logged-on to a remote computer<br> **Requirements**: Run this script with a network admin account |
 | 📜 Batch | [Windows one-liners.bat](Windows%20one-liners.bat) | **Purpose**: A comprehensive collection of useful Windows CMD and PowerShell one-liners for system administration, monitoring, and networking<br> **Usage**: **DO NOT RUN AS A SCRIPT**. Open in a text editor and copy/paste specific commands as needed<br> **Content**: 376 lines of battle-tested commands covering WMIC, networking, Active Directory, remote management, and more |
-| 🐧 Bash | [Linux one-liners (bash).sh](Linux%20one-liners%20(bash).sh) | **Purpose**: A collection of useful Linux/Bash one-liners for system administration, monitoring, and networking.<br> **Usage**: Copy and paste specific commands as needed. Do not run this file as a script. |
+| 🐧 Bash | [Linux one-liners (bash).sh](Linux%20one-liners%20%28bash%29.sh) | **Purpose**: A collection of useful Linux/Bash one-liners for system administration, monitoring, and networking.<br> **Usage**: Copy and paste specific commands as needed. Do not run this file as a script. |
 | 📄 Text | [active directory one-liners.txt](active%20directory%20one-liners.txt) | **Purpose**: Collection of Active Directory PowerShell and command-line snippets<br> **Usage**: Reference file for AD administration commands |
 | 📜 Batch | [lottery.bat](lottery.bat) | **Purpose**: Fun/testing script that generates random numbers and counts "tick hits" (when %RANDOM% < 3) until a specified time<br> **Requirements**: None<br> **Usage**: Edit STOPTIME variable, then run. Results are logged to desktop |
 | 📜 Batch | [MyLittlePony.bat](MyLittlePony.bat) | **Purpose**: Prank/kiosk script that creates scheduled tasks to launch websites (My Little Pony, Windows93, YouTube videos) in fullscreen kiosk mode<br> **Usage**: Contains multiple examples of different schedules (hourly, every 5 minutes, on idle, on logon)<br> **⚠️ Warning**: This is a prank script. Use responsibly and only in appropriate contexts! |
@@ -141,6 +145,137 @@ Monitoring tools, useful command snippets, and miscellaneous utilities.
 | ⚡ PowerShell | [send_popup_message_to_multiple_systems.ps1](send_popup_message_to_multiple_systems.ps1) | **Purpose**: Trigger a pop-up message window on a list of systems<br> **Requirements**: Admin rights on the target machines<br> **Usage**: Edit the variables below to target the OU you want, and specify where psexec is |
 | 📄 Text | [father_quotes.txt](father_quotes.txt) | **Purpose**: Collection of memorable quotes<br> **Usage**: Reference/inspiration file |
 | 📄 Text | [lnk link command lines and batch hints shortcuts.txt](lnk%20link%20command%20lines%20and%20batch%20hints%20shortcuts.txt) | **Purpose**: Reference file containing Windows shortcut (.lnk) creation commands and batch scripting tips<br> **Usage**: Reference file for script development |
+
+## Additional Resources
+
+### 📁 Subdirectories
+
+The repository contains three subdirectories with additional scripts and configurations:
+
+#### legacy/
+
+Contains 11 legacy scripts and registry files for older Windows systems or deprecated technologies:
+
+| Type | File | Description |
+| :--- | :--- | :--- |
+| 📜 Batch | [adobe_flash_player_nuker.bat](legacy/adobe_flash_player_nuker.bat) | **Purpose**: Removes all traces of Adobe Flash Player from the system<br> **Requirements**: Administrative rights<br> **Note**: Legacy tool for Flash Player (now end-of-life) |
+| 📜 Batch | [java_runtime_nuker.bat](legacy/java_runtime_nuker.bat) | **Purpose**: Removes all installed Java Runtime Environment versions<br> **Requirements**: Administrative rights<br> **Usage**: Useful for clean Java reinstallations |
+| 📜 Batch | [microsoft_silverlight_nuker.bat](legacy/microsoft_silverlight_nuker.bat) | **Purpose**: Removes Microsoft Silverlight from the system<br> **Requirements**: Administrative rights<br> **Note**: Legacy tool for Silverlight (discontinued by Microsoft) |
+| 📜 Batch | [repair_windows_update.bat](legacy/repair_windows_update.bat) | **Purpose**: Attempts to repair broken Windows Update functionality<br> **Requirements**: Administrative rights; Stops services, clears caches, re-registers DLLs |
+| 📜 Batch | [repair_wmi.bat](legacy/repair_wmi.bat) | **Purpose**: Repairs Windows Management Instrumentation (WMI)<br> **Requirements**: Administrative rights; Rebuilds WMI repository |
+| ®️ Registry | [disable_Adobe_Shockwave_Autoupdate.reg](legacy/disable_Adobe_Shockwave_Autoupdate.reg) | **Purpose**: Disables Adobe Shockwave automatic updates<br> **Note**: Legacy - Shockwave discontinued in 2019 |
+| ®️ Registry | [disable_Adobe_Shockwave_Stats_Collection.reg](legacy/disable_Adobe_Shockwave_Stats_Collection.reg) | **Purpose**: Disables Adobe Shockwave statistics collection<br> **Note**: Legacy - Shockwave discontinued in 2019 |
+| ®️ Registry | [disable_Java_Auto-Update.reg](legacy/disable_Java_Auto-Update.reg) | **Purpose**: Disables Java automatic updates<br> **Usage**: Useful for enterprise environments with managed Java deployments |
+| ®️ Registry | [enable_standard_RunAs_on_Vista.reg](legacy/enable_standard_RunAs_on_Vista.reg) | **Purpose**: Enables standard "Run As" context menu on Windows Vista<br> **Note**: Legacy - Vista-specific tweak |
+| ®️ Registry | [vista_StopHijackingMySleepButton.reg](legacy/vista_StopHijackingMySleepButton.reg) | **Purpose**: Prevents Vista from changing sleep button behavior<br> **Note**: Legacy - Vista-specific issue |
+| ®️ Registry | [winVista_win7_prevent_Welcome_Center_running_for_each_new_user.reg](legacy/winVista_win7_prevent_Welcome_Center_running_for_each_new_user.reg) | **Purpose**: Prevents Welcome Center from appearing for new users<br> **Note**: Legacy - Vista/7 specific |
+
+#### librenms/
+
+Contains 12 LibreNMS alert templates and configuration files for network monitoring:
+
+| Type | File | Description |
+| :--- | :--- | :--- |
+| 📄 Template | [better_default_alert_template](librenms/better_default_alert_template) | **Purpose**: Improved default alert template for LibreNMS<br> **Usage**: Replace default template for better-formatted alerts |
+| 📄 Template | [device_rebooted_template](librenms/device_rebooted_template) | **Purpose**: Alert template specifically for device reboot notifications<br> **Usage**: Notifies when monitored devices restart |
+| 📄 Template | [disk_space_low_alert_template](librenms/disk_space_low_alert_template) | **Purpose**: Alert template for low disk space warnings<br> **Usage**: Triggers when disk usage exceeds threshold |
+| 📄 Template | [firewall_port_down_template](librenms/firewall_port_down_template) | **Purpose**: Alert template for firewall port down events<br> **Usage**: Monitors critical firewall interfaces |
+| 📄 Template | [microsoft_teams_alert_template](librenms/microsoft_teams_alert_template) | **Purpose**: Formats alerts for Microsoft Teams integration<br> **Usage**: Sends LibreNMS alerts to Teams channels |
+| 📄 Template | [printer_toner_low_alert_template](librenms/printer_toner_low_alert_template) | **Purpose**: Alert template for printer toner low warnings<br> **Usage**: Monitors network printer toner levels |
+| 📄 Template | [sensor_fault_condition_template](librenms/sensor_fault_condition_template) | **Purpose**: Alert template for sensor fault conditions<br> **Usage**: Monitors environmental sensors (temperature, humidity, etc.) |
+| 📄 Text | [LibreNMS commands.txt](librenms/LibreNMS%20commands.txt) | **Purpose**: Collection of useful LibreNMS CLI commands and snippets<br> **Usage**: Reference file for LibreNMS administration |
+| 🖼️ Image | [screenshot_alert.png](librenms/screenshot_alert.png) | **Purpose**: Example screenshot of alert formatting<br> **Usage**: Visual reference for alert appearance |
+| 🖼️ Image | [screenshot_rebooted.png](librenms/screenshot_rebooted.png) | **Purpose**: Example screenshot of device reboot alert<br> **Usage**: Visual reference for reboot alerts |
+| 🖼️ Image | [screenshot_recovery_alert.png](librenms/screenshot_recovery_alert.png) | **Purpose**: Example screenshot of recovery alert<br> **Usage**: Visual reference for when issues are resolved |
+| 🖼️ Image | [screenshot_warning_alert.png](librenms/screenshot_warning_alert.png) | **Purpose**: Example screenshot of warning alert<br> **Usage**: Visual reference for warning-level alerts |
+
+#### registry/
+
+Contains 38 registry tweaks and PowerShell scripts for Windows customization and optimization.
+
+> [!TIP]
+> See the [registry/ROADMAP.md](registry/ROADMAP.md) for planned improvements including reorganization, safety enhancements, and expansion to Windows 11.
+
+**Office Tweaks:**
+- [Tweak_Office_Excel_Add_Open In New Excel Instance Right-Click Option_UNDO.reg](registry/Tweak_Office_Excel_Add_Open%20In%20New%20Excel%20Instance%20Right-Click%20Option_UNDO.reg) - Undo right-click option addition
+- [Tweak_Office_Excel_open in new instance by default_UNDO.reg](registry/Tweak_Office_Excel_open%20in%20new%20instance%20by%20default_UNDO.reg) - Undo default new instance behavior
+- [Tweak_Office_Outlook_stop_auto-compressing_images.reg](registry/Tweak_Office_Outlook_stop_auto-compressing_images.reg) - Prevent Outlook from compressing images
+- [tweak_office_excel_Add_Open In New Excel Instance Right-Click Option.reg](registry/tweak_office_excel_Add_Open%20In%20New%20Excel%20Instance%20Right-Click%20Option.reg) - Add right-click option
+- [tweak_office_excel_open in new instance by default.reg](registry/tweak_office_excel_open%20in%20new%20instance%20by%20default.reg) - Open Excel files in separate instances
+- [tweak_office_visio_open_files_in_separate_windows.reg](registry/tweak_office_visio_open_files_in_separate_windows.reg) - Open Visio files in separate windows
+
+**Windows Server Tweaks:**
+- [Windows_Server_disable_shutdown_event_tracker.reg](registry/Windows_Server_disable_shutdown_event_tracker.reg) - Disable shutdown event tracker dialog
+
+**General Windows Tweaks:**
+- [add_Take_Ownership_to_context_menu.reg](registry/add_Take_Ownership_to_context_menu.reg) - Add "Take Ownership" to right-click menu
+- [ask_user_instead_of_silently_installing_minor_updates.reg](registry/ask_user_instead_of_silently_installing_minor_updates.reg) - Prompt before installing updates
+- [disable_NCSI_phone-home_Internet_connectivity_check.reg](registry/disable_NCSI_phone-home_Internet_connectivity_check.reg) - Disable network connectivity status indicator
+- [disable_Tray_Balloon_Notifcations.reg](registry/disable_Tray_Balloon_Notifcations.reg) - Disable system tray balloon notifications
+- [disable_Windows_Update_Auto-Reboot.reg](registry/disable_Windows_Update_Auto-Reboot.reg) - Prevent automatic reboots after updates
+- [disable_shortcut_to_text.reg](registry/disable_shortcut_to_text.reg) - Remove "- Shortcut" suffix from shortcuts (duplicate in root)
+- [disable_telemetry_registry_entries.reg](registry/disable_telemetry_registry_entries.reg) - Disable Windows telemetry
+- [disable_use_web_service_to_find_the_correct_program.reg](registry/disable_use_web_service_to_find_the_correct_program.reg) - Disable web service lookup for programs
+- [disable_windows_10_upgrade_registry_entries.reg](registry/disable_windows_10_upgrade_registry_entries.reg) - Block Windows 10 upgrade prompts (legacy)
+- [enable_Powershell_scripts_run_by_double-clicking.reg](registry/enable_Powershell_scripts_run_by_double-clicking.reg) - Enable PS1 double-click execution (duplicate in root)
+- [enable_command-prompt_auto-complete.reg](registry/enable_command-prompt_auto-complete.reg) - Enable command prompt autocomplete
+- [enable_command-prompt_use_of_systems_mapped_drives.reg](registry/enable_command-prompt_use_of_systems_mapped_drives.reg) - Enable mapped drives in CMD
+- [force_NumLock_on_at_startup.reg](registry/force_NumLock_on_at_startup.reg) - Enable NumLock at startup
+- [show_windows_version_on_desktop.reg](registry/show_windows_version_on_desktop.reg) - Display Windows version on desktop (duplicate in root)
+
+**Windows 10 Specific Tweaks:**
+- [win10_annoyance_remove_stupid_folders_in_MyPC (Videos, Pictures, etc).reg](registry/win10_annoyance_remove_stupid_folders_in_MyPC%20%28Videos%2C%20Pictures%2C%20etc%29.reg) - Remove default folders from This PC
+- [win10_disable_annoying_lock_screen.reg](registry/win10_disable_annoying_lock_screen.reg) - Disable Windows 10 lock screen
+- [win10_disable_libraries_in_navigation_pane.reg](registry/win10_disable_libraries_in_navigation_pane.reg) - Hide libraries from navigation pane
+- [win10_enable_legacy_incoming_remote_desktop_security (allow Linux clients to connect).reg](registry/win10_enable_legacy_incoming_remote_desktop_security%20%28allow%20Linux%20clients%20to%20connect%29.reg) - Enable legacy RDP security
+- [win10_force_folder_views_not_to_change.reg](registry/win10_force_folder_views_not_to_change.reg) - Lock folder view settings
+- [win10_powershell_enable_double-clicking_ps1_files_to_launch.ps1](registry/win10_powershell_enable_double-clicking_ps1_files_to_launch.ps1) - PowerShell script version of PS1 enabler
+- [win10_prevent_wifi_credential_sharing.reg](registry/win10_prevent_wifi_credential_sharing.reg) - Disable WiFi Sense credential sharing
+- [win10_show_window_contents_while_dragging.reg](registry/win10_show_window_contents_while_dragging.reg) - Enable window contents preview while dragging
+
+**Windows 7-10 Cross-Version Tweaks:**
+- [win7-10_disable_wallpaper_compression.reg](registry/win7-10_disable_wallpaper_compression.reg) - Disable wallpaper compression for better quality
+- [win7-8.1_disable_uncancellable_auto_restart_notification.reg](registry/win7-8.1_disable_uncancellable_auto_restart_notification.reg) - Disable restart notifications
+
+**Windows 7/8 Specific Tweaks:**
+- [win7_disable_libraries.reg](registry/win7_disable_libraries.reg) - Disable libraries feature in Windows 7
+- [win7_enable_tcpipv6.reg](registry/win7_enable_tcpipv6.reg) - Enable IPv6
+- [win7_shrink_window_borders.reg](registry/win7_shrink_window_borders.reg) - Make window borders thinner
+- [win8_remove_pin-to-start_right_click_option.reg](registry/win8_remove_pin-to-start_right_click_option.reg) - Remove "Pin to Start" option
+
+**Cross-Version Tweaks (XP-10):**
+- [winXP-10_disable_all_balloon_notification_tips.reg](registry/winXP-10_disable_all_balloon_notification_tips.reg) - Disable all balloon tips
+- [winXP-10_disable_all_balloon_tips.reg](registry/winXP-10_disable_all_balloon_tips.reg) - Alternative balloon tip disabler
+
+**PowerShell Script:**
+- [remove_old_unused_drivers.ps1](registry/remove_old_unused_drivers.ps1) - Duplicate of root-level script
+
+### 🔧 Standalone Tools
+
+Pre-compiled utilities included in the repository:
+
+| Tool | Version | Description |
+| :--- | :--- | :--- |
+| **caffeine.exe** | - | **Purpose**: Prevents system from going to sleep by simulating user activity<br> **Requirements**: None (no admin rights required)<br> **Usage**: Run to keep system awake; press any key to exit<br> **Note**: Lightweight alternative to `keepSystemAwake.ps1` |
+| **LGPO.exe** | - | **Purpose**: Microsoft Local Group Policy Object utility<br> **Requirements**: Administrative rights<br> **Usage**: Command-line tool for managing local group policies<br> **Documentation**: Run with `/?` for help<br> **Use Case**: Automate GPO changes without GUI |
+| **wget v1.20.3.exe** | 1.20.3 (64-bit) | **Purpose**: Command-line file download utility (GNU Wget for Windows)<br> **Requirements**: None<br> **Usage**: `wget [URL]` to download files<br> **Note**: Full-featured 64-bit version |
+| **wget v1.20.3 x86.exe** | 1.20.3 (32-bit) | **Purpose**: Command-line file download utility (GNU Wget for Windows)<br> **Requirements**: None<br> **Usage**: `wget [URL]` to download files<br> **Note**: 32-bit version for compatibility |
+
+### 📄 Data Files
+
+Reference and whitelist files used by Tron and related scripts:
+
+| File | Size | Description |
+| :--- | :--- | :--- |
+| **tron_guid_whitelist.txt** | ~975 KB | **Purpose**: Master whitelist of Windows application GUIDs to preserve during Tron cleanup<br> **Usage**: Used by Tron's debloat stage; also used by `tron_parse_incoming_guids.ps1`<br> **Format**: One GUID per line with optional comments<br> **Maintenance**: Regularly updated with user-submitted safe GUIDs |
+| **tron_metro_whitelist.txt** | ~14 KB | **Purpose**: Whitelist of Windows Metro/UWP apps to preserve during cleanup<br> **Usage**: Used by Tron's debloat stage; also used by `tron_parse_incoming_metro_apps.ps1`<br> **Format**: One app package name per line<br> **Maintenance**: Updated to include essential system apps and useful utilities |
+| **father_quotes.txt** | ~477 KB | **Purpose**: Collection of memorable quotes and wisdom<br> **Usage**: Reference/inspiration file<br> **Note**: Personal collection; not directly related to system administration |
+
+**Additional Root-Level Registry File:**
+
+| Type | File | Description |
+| :--- | :--- | :--- |
+| ®️ Registry | [PermanentlyRemove'Links'FromIEBookmarks.reg](PermanentlyRemove'Links'FromIEBookmarks.reg) | **Purpose**: Removes the "Links" folder from Internet Explorer bookmarks/favorites<br> **Requirements**: Registry modification; restart IE or reboot<br> **Note**: Legacy - Internet Explorer specific |
 
 ## Usage Examples
 
