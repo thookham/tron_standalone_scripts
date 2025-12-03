@@ -24,6 +24,7 @@ A curated collection of battle-tested standalone scripts and utilities for Windo
   - [🔧 Standalone Tools](#-standalone-tools)
   - [📄 Data Files](#-data-files)
 - [Usage Examples](#usage-examples)
+- [🗺️ Roadmap](ROADMAP.md)
 - [Related Projects](#related-projects)
 - [Contributing](#contributing)
 - [License](#license)
