@@ -1,0 +1,35 @@
+# General
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+*.tmp
+*.out
+
+# PowerShell
+*.ps1xml
+*.psd1
+# Excluding psd1/psm1 might be wrong for modules, keeping it safe
+# *.psm1
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+.env
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Build results
+dist/
+build/
+bin/
+obj/
+target/
